@@ -42,18 +42,19 @@ spec:
             - name: p2pudp
               containerPort: {{ .Values.services.qbittorrent.ports.p2pudp }}
               protocol: UDP
+
           volumeMounts:
             - name: qbittorrent-config
               mountPath: /config
-            - name: data
+            - name: smb
+              subPath: "{{ .Values.services.qbittorrent.data }}"
               mountPath: /data
       volumes:
         - name: qbittorrent-config
           hostPath:
             path: "{{ .Values.services.qbittorrent.config }}"
             type: Directory
-        - name: data
-          hostPath:
-            path: "{{ .Values.services.qbittorrent.data }}"
-            type: Directory
+        - name: smb
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.smb.pvcClaimName }}
 {{- end }}

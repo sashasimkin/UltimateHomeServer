@@ -6,6 +6,14 @@ common:
         ssl_certificate_key: /etc/letsencrypt/live/${DOMAIN}/privkey.pem
         ssl_certificate: /etc/letsencrypt/live/${DOMAIN}/fullchain.pem
         ssl_dhparam: /etc/letsencrypt/certs/dhparam.pem
+
+storage:
+    smb:
+        namespace: default
+        pvcClaimName: pvc-plex-smb
+        pvName: pv-plex-smb
+        smbAddress: //192.168.0.2/example # Change this to your SMB IP and share name
+
 services:
     apprise:
         enabled: false

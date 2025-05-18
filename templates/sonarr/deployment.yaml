@@ -34,19 +34,19 @@ spec:
             - name: http
               containerPort: {{ .Values.services.sonarr.ports.http }}
               protocol: TCP
+
           volumeMounts:
             - name: sonarr-config
               mountPath: /config
-            - name: data
+            - name: smb
+              subPath: "{{ .Values.services.sonarr.data }}"
               mountPath: /data
-
       volumes:
         - name: sonarr-config
           hostPath:
             path: "{{ .Values.services.sonarr.config }}"
             type: Directory
-        - name: data
-          hostPath:
-            path: "{{ .Values.services.sonarr.data }}"
-            type: Directory
+        - name: smb
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.smb.pvcClaimName }}
 {{- end }}

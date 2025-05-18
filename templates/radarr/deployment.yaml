@@ -34,19 +34,19 @@ spec:
             - name: http
               containerPort: {{ .Values.services.radarr.ports.http }}
               protocol: TCP
+
           volumeMounts:
             - name: radarr-config
               mountPath: /config
-            - name: data
+            - name: smb
+              subPath: "{{ .Values.services.radarr.data }}"
               mountPath: /data
-
       volumes:
         - name: radarr-config
           hostPath:
             path: "{{ .Values.services.radarr.config }}"
             type: Directory
-        - name: data
-          hostPath:
-            path: "{{ .Values.services.radarr.data }}"
-            type: Directory
+        - name: smb
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.smb.pvcClaimName }}
 {{- end }}
