@@ -2,25 +2,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: qbittorrent
+  name: qbittorrent-p2p
   namespace: default
   labels:
     app.kubernetes.io/name: qbittorrent
 spec:
-  type: ClusterIP
+  type: NodePort #ClusterIP
   ports:
-    - name: http
-      port: {{ .Values.services.qbittorrent.ports.http }}
-      targetPort: http
-      protocol: TCP
     - name: p2p
       port: {{ .Values.services.qbittorrent.ports.p2p }}
       targetPort: p2p
       protocol: TCP
+      nodePort: 30081 #{{ .Values.services.qbittorrent.ports.p2p }}
     - name: p2pudp
       port: {{ .Values.services.qbittorrent.ports.p2pudp }}
       targetPort: p2p
       protocol: UDP
+      nodePort: 30082 #{{ .Values.services.qbittorrent.ports.p2pudp }}
   selector:
     app.kubernetes.io/name: qbittorrent
 {{- end }}
