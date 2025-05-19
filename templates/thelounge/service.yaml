@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: thelounge
-  namespace: default
+  namespace: {{ .Values.common.namespace }}
   labels:
     app.kubernetes.io/name: thelounge
 spec:

@@ -45,5 +45,5 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: homepage
-    namespace: default
+    namespace: {{ .Values.common.namespace }}
 {{- end }}

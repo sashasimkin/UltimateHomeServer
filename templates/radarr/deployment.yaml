@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: radarr
-  namespace: default
+  namespace: {{ .Values.common.namespace }}
   labels:
     app.kubernetes.io/name: radarr
 spec:

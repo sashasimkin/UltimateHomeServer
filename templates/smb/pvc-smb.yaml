@@ -3,12 +3,12 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ .Values.storage.smb.pvcClaimName }}
-  namespace: {{ .Values.storage.smb.namespace }}
+  namespace: {{ .Values.common.namespace }}
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
-  volumeName: pv-plex-smb
+  volumeName: {{ .Values.storage.smb.pvName }}
   storageClassName: smb

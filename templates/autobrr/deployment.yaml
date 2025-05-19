@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: autobrr
-  namespace: default
+  namespace: {{ .Values.common.namespace }}
   labels:
     app.kubernetes.io/name: autobrr
 spec:

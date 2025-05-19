@@ -4,6 +4,7 @@ metadata:
   annotations:
     pv.kubernetes.io/provisioned-by: smb.csi.k8s.io
   name: {{ .Values.storage.smb.pvName }}
+  namespace: {{ .Values.common.namespace }}
 spec:
   capacity:
     storage: 100Gi
@@ -24,4 +25,4 @@ spec:
       source: {{ .Values.storage.smb.smbAddress }} # Change this to your SMB IP and share name
     nodeStageSecretRef:
       name: smbcreds
-      namespace: default
+      namespace: {{ .Values.common.namespace }}

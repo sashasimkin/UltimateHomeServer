@@ -7,7 +7,7 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ $name }}-ingress
-  namespace: {{ $.Values.services.traefik.namespace }}
+  namespace: {{ .Values.common.namespace }}
   labels:
     app.kubernetes.io/name: {{ $name }}
 spec:

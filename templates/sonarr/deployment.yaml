@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: sonarr
-  namespace: default
+  namespace: {{ .Values.common.namespace }}
   labels:
     app.kubernetes.io/name: sonarr
 spec:
