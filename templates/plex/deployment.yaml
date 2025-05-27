@@ -36,20 +36,16 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: plex-config
-              mountPath: "/config"
-            - name: smb
-              subPath: "{{ .Values.services.plex.library }}"
+              mountPath: /config
+            - name: library
               mountPath: /library
       volumes:
-        - name: smb
-          persistentVolumeClaim:
-            claimName: {{ .Values.storage.smb.pvcClaimName }}
         - name: plex-config
           hostPath:
             path: "{{ .Values.services.plex.config }}"
             type: Directory
-        # - name: library
-        #   hostPath:
-        #     path: "{{ .Values.services.plex.library }}"
-        #     type: Directory
+        - name: library
+          hostPath:
+            path: "{{ .Values.services.plex.library }}"
+            type: Directory
 {{- end }}
