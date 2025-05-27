@@ -1,5 +1,6 @@
 common:
-    tz: America/New_York
+    namespace: default
+    tz: Europe/Kyiv
     network:
         gateway: 192.168.1.1
     certs:
