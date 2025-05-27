@@ -3,11 +3,10 @@ common:
     tz: Europe/Kyiv
     network:
         gateway: 192.168.1.1
-    certs:
-        ssl_certificate_key: /etc/letsencrypt/live/${DOMAIN}/privkey.pem
-        ssl_certificate: /etc/letsencrypt/live/${DOMAIN}/fullchain.pem
-        ssl_dhparam: /etc/letsencrypt/certs/dhparam.pem
+    domain: example.com
 services:
+    traefik:
+      tlsSecretName: "cert-manager-provided-secret"
     apprise:
         enabled: false
         replicaCount: 1
@@ -46,7 +45,6 @@ services:
             tag: latest
             pullPolicy: IfNotPresent
         tunnel: example-tunnel
-        domain: example.com
         url: http://foo.example.com
         target: localhost:8080
     gotify:
@@ -132,18 +130,6 @@ services:
             http: 5000
         config: /opt/kavita/config
         library: /data/library/books
-    nginx:
-        enabled: false
-        replicaCount: 1
-        image:
-            repository: nginx
-            tag: latest
-            pullPolicy: Always
-        ports:
-            http: 80
-            https: 443
-        public_path: /opt/nginx/public
-        domain: example.com
     overseerr:
         enabled: false
         replicaCount: 1

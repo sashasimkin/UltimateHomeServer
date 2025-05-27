@@ -1,8 +1,8 @@
-{{- define "your-chart.ingressroute" }}
+{{- define "traefik-config.ingressroute" }}
 {{- $name := .name }}
 {{- $svc := index .Values.services $name }}
 {{- if $svc.enabled }}
-{{- $domain := printf "%s.%s" $name $.Values.services.traefik.domain }}
+{{- $domain := printf "%s.%s" $name $.Values.common.domain }}
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -24,6 +24,6 @@ spec:
         - name: redirect-https
         - name: default-headers
   tls:
-    secretName: bongofett-cert
+    secretName: ${{ .Values.services.traefik.tlsSecretName }}
 {{- end }}
 {{- end }}
