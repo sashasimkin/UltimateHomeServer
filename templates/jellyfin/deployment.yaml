@@ -31,7 +31,7 @@ spec:
             - name: TZ
               value: "{{ .Values.common.tz }}"
             - name: "JELLYFIN_PublishedServerUrl"
-              value: "jellyfin.{{ .Values.services.nginx.domain }}"
+              value: "jellyfin.{{ .Values.services.traefik.domain }}"
           ports:
             - name: http
               containerPort: {{ .Values.services.jellyfin.ports.http }}
