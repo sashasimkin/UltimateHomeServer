@@ -4,6 +4,10 @@ common:
     network:
         gateway: 192.168.1.1
     domain: example.com
+    storage:
+      longhorn:
+        enabled: true
+        storageSize: 10Gi
 services:
     traefik:
       tlsSecretName: "cert-manager-provided-secret"

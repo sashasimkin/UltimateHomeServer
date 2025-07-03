@@ -42,7 +42,6 @@ spec:
 
       volumes:
         - name: changedetectionio-config
-          hostPath:
-            path: "{{ .Values.services.changedetectionio.config }}"
-            type: Directory
+          persistentVolumeClaim:
+            claimName: longhorn-volv-pvc
 {{- end }}
