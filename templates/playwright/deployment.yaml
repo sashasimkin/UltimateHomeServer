@@ -44,7 +44,6 @@ spec:
 
       volumes:
         - name: playwright-config
-          hostPath:
-            path: "{{ .Values.services.playwright.config }}"
-            type: Directory
+          persistentVolumeClaim:
+            claimName: longhorn-volv-pvc
 {{- end }}
