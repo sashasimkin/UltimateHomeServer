@@ -40,7 +40,7 @@ services:
             pullPolicy: Always
         ports:
             http: 5000
-        config: /opt/changedetectionio/config
+        config: changedetectionio/config
     cloudflared:
         enabled: false
         replicaCount: 1
@@ -144,6 +144,16 @@ services:
         ports:
             http: 5055
         config: /opt/overseerr/config
+    actualbudget:
+        enabled: false
+        replicaCount: 1
+        image:
+            repository: actualbudget/actual-server
+            tag: latest
+            pullPolicy: Always
+        ports:
+            http: 5006
+        config: actualbudget/config
     playwright:
         enabled: false
         replicaCount: 1
@@ -153,7 +163,7 @@ services:
             pullPolicy: Always
         ports:
             http: 3000
-        config: /opt/playwright/config
+        config: playwright/config
     plex:
         enabled: false
         replicaCount: 1

@@ -1,0 +1,46 @@
+{{- if .Values.services.actualbudget.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actualbudget
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: actualbudget
+spec:
+  revisionHistoryLimit: 3
+  replicas: {{ .Values.services.actualbudget.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: actualbudget
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: actualbudget
+    spec:
+      containers:
+        - name: actualbudget
+          image: "{{ .Values.services.actualbudget.image.repository }}:{{ .Values.services.actualbudget.image.tag }}"
+          imagePullPolicy: {{ .Values.services.actualbudget.image.pullPolicy }}
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "{{ .Values.common.tz }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.actualbudget.ports.http }}
+              protocol: TCP
+          volumeMounts:
+            - name: actualbudget-config
+              mountPath: /config
+              subPath: {{ .Values.services.actualbudget.config }}
+
+      volumes:
+        - name: actualbudget-config
+          persistentVolumeClaim:
+            claimName: longhorn-volv-pvc
+{{- end }}
