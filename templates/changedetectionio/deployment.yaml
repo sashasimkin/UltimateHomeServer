@@ -39,6 +39,7 @@ spec:
           volumeMounts:
             - name: changedetectionio-config
               mountPath: /config
+              subPath: {{ .Values.services.changedetectionio.config }}
 
       volumes:
         - name: changedetectionio-config

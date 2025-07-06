@@ -41,6 +41,7 @@ spec:
           volumeMounts:
             - name: playwright-config
               mountPath: /config
+              subPath: {{ .Values.services.playwright.config }}
 
       volumes:
         - name: playwright-config
