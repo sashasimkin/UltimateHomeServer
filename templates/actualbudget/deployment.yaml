@@ -35,12 +35,12 @@ spec:
               containerPort: {{ .Values.services.actualbudget.ports.http }}
               protocol: TCP
           volumeMounts:
-            - name: actualbudget-config
-              mountPath: /config
-              subPath: {{ .Values.services.actualbudget.config }}
+            - name: actualbudget-data
+              mountPath: /data
+              subPath: {{ .Values.services.actualbudget.data }}
 
       volumes:
-        - name: actualbudget-config
+        - name: actualbudget-data
           persistentVolumeClaim:
             claimName: longhorn-volv-pvc
 {{- end }}
