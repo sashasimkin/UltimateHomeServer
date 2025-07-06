@@ -24,6 +24,6 @@ spec:
         - name: redirect-https
         - name: default-headers
   tls:
-    secretName: ${{ .Values.services.traefik.tlsSecretName }}
+    secretName: {{ .Values.services.traefik.tlsSecretName }}
 {{- end }}
 {{- end }}
