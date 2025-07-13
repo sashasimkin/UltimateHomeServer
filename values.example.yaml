@@ -115,13 +115,14 @@ services:
         enabled: false
         replicaCount: 1
         image:
-            repository: ghcr.io/onedr0p/jellyfin
-            tag: rolling
+            repository: jellyfin/jellyfin
+            tag: latest
             pullPolicy: Always
         ports:
             http: 8096
             udp: 7359
-        config: /opt/jellyfin/config
+        config: jellyfin/config
+        cache: jellyfin/cache
         library: /data/library
     kavita:
         enabled: false

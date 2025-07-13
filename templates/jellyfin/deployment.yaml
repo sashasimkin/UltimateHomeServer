@@ -40,13 +40,16 @@ spec:
               containerPort: {{ .Values.services.jellyfin.ports.udp }}
               protocol: UDP
           volumeMounts:
-            - name: jellyfin-config
+            - name: jellyfin-data
               mountPath: /config
               subPath: "{{ .Values.services.jellyfin.config }}"
+            - name: jellyfin-data
+              mountPath: /cache
+              subPath: "{{ .Values.services.jellyfin.cache }}"
             - name: library
               mountPath: /library
       volumes:
-        - name: jellyfin-config
+        - name: jellyfin-data
           persistentVolumeClaim:
             claimName: longhorn-volv-pvc
         - name: library
