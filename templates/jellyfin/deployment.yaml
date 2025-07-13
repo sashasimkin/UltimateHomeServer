@@ -42,15 +42,33 @@ spec:
           volumeMounts:
             - name: jellyfin-config
               mountPath: /config
+              subPath: "{{ .Values.services.jellyfin.config }}"
             - name: library
               mountPath: /library
       volumes:
         - name: jellyfin-config
-          hostPath:
-            path: "{{ .Values.services.jellyfin.config }}"
-            type: Directory
+          persistentVolumeClaim:
+            claimName: longhorn-volv-pvc
         - name: library
           hostPath:
             path: "{{ .Values.services.jellyfin.library }}"
             type: Directory
+      {{- with .Values.services.jellyfin.nodeSelector }}
+      nodeSelector:
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.services.jellyfin.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.jellyfin.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with  .Values.services.jellyfin.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
