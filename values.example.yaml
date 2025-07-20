@@ -169,6 +169,29 @@ services:
         ports:
             http: 5006
         data: actualbudget/data
+        monoImporter:
+          enabled: false
+          image: "ghcr.io/sashasimkin/mono-to-actualbudget:latest"
+          job:
+            parameters:
+              ACTUAL_URL: "https://.../"
+              NODE_TLS_REJECT_UNAUTHORIZED: 1
+              DAYS_TO_SYNC: 14
+              USE_NODE_CRON: false
+              MONO_CARD_0: "ACTUAL_ACCOUNT_ID"
+              MONO_CARD_1: "ACTUAL_ACCOUNT_NAME"
+              # MONO_CARD_N: "ACTUAL_ACCOUNT_NAME"
+            secretParameters:
+              ACTUAL_PASSWORD: ""
+              ACTUAL_SYNC_ID: ""
+              MONO_TOKEN: ""
+            backoffLimit: 3
+          cronJob:
+            schedule: "0 18 * * *" # Default to 18:00 Kyiv time (UTC+3 for EEST)
+            successfulJobsHistoryLimit: 3
+            failedJobsHistoryLimit: 1
+
+
     playwright:
         enabled: false
         replicaCount: 1

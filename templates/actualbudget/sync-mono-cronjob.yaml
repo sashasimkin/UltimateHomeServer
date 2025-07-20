@@ -1,0 +1,38 @@
+{{- if .Values.services.actualbudget.monoImporter.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mono-actual-cronjob
+  labels:
+    app.kubernetes.io/name: mono-actual
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  schedule: "{{ .Values.services.actualbudget.monoImporter.cronJob.schedule }}"
+  successfulJobsHistoryLimit: {{ .Values.services.actualbudget.monoImporter.cronJob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.services.actualbudget.monoImporter.cronJob.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.services.actualbudget.monoImporter.cronJob.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: mono-actual
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: cronjob-container
+              image: "{{ .Values.services.actualbudget.monoImporter.image }}"
+              imagePullPolicy: Always
+              env:
+                {{- range $key, $value := .Values.services.actualbudget.monoImporter.job.parameters }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+                {{- end }}
+                {{- range $key, $value := .Values.services.actualbudget.monoImporter.job.secretParameters }}
+                - name: {{ $key }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: mono-actual-job-secret
+                      key: {{ $key }}
+                {{- end }}
+{{- end }}
