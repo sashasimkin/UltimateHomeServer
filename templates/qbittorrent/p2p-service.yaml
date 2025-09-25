@@ -13,12 +13,12 @@ spec:
       port: {{ .Values.services.qbittorrent.ports.p2p }}
       targetPort: p2p
       protocol: TCP
-      nodePort: 30081 #{{ .Values.services.qbittorrent.ports.p2p }}
+      nodePort: {{ .Values.services.qbittorrent.nodePorts.p2p }}
     - name: p2pudp
       port: {{ .Values.services.qbittorrent.ports.p2pudp }}
-      targetPort: p2p
+      targetPort: p2pudp
       protocol: UDP
-      nodePort: 30082 #{{ .Values.services.qbittorrent.ports.p2pudp }}
+      nodePort: {{ .Values.services.qbittorrent.nodePorts.p2pudp }}
   selector:
     app.kubernetes.io/name: qbittorrent
 {{- end }}

@@ -234,6 +234,9 @@ services:
             http: 8080
             p2p: 6881
             p2pudp: 6881
+        nodePorts:
+            p2p: 30081
+            p2pudp: 30081
         config: /opt/qbittorrent/config
         data: /data/torrents
     radarr:
