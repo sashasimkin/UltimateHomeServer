@@ -1,0 +1,18 @@
+{{- if .Values.services.homeassistant.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: homeassistant
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: homeassistant
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.services.homeassistant.ports.http }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: homeassistant
+{{- end }}

@@ -1,0 +1,2 @@
+# IngressRoute configuration
+{{- include "traefik-config.ingressroute" (dict "name" "homeassistant" "Values" .Values) }}

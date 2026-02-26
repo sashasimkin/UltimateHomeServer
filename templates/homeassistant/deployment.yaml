@@ -1,0 +1,82 @@
+{{- if .Values.services.homeassistant.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: homeassistant
+spec:
+  revisionHistoryLimit: 3
+  replicas: {{ .Values.services.homeassistant.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: homeassistant
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: homeassistant
+    spec:
+      containers:
+        - name: homeassistant
+          image: "{{ .Values.services.homeassistant.image.repository }}:{{ .Values.services.homeassistant.image.tag }}"
+          imagePullPolicy: {{ .Values.services.homeassistant.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: "{{ .Values.common.tz }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.homeassistant.ports.http }}
+              protocol: TCP
+          securityContext:
+            privileged: {{ .Values.services.homeassistant.privileged | default false }}
+            {{- with .Values.services.homeassistant.capabilities }}
+            capabilities:
+              add:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+          volumeMounts:
+            - name: homeassistant-data
+              mountPath: /config
+              subPath: "{{ .Values.services.homeassistant.config }}"
+            {{- with .Values.services.homeassistant.usbDevices }}
+            {{- range $key, $value := . }}
+            - name: {{ $key }}
+              mountPath: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+      volumes:
+        - name: homeassistant-data
+          persistentVolumeClaim:
+            claimName: longhorn-volv-pvc
+        {{- with .Values.services.homeassistant.usbDevices }}
+        {{- range $key, $value := . }}
+        - name: {{ $key }}
+          hostPath:
+            path: {{ $value | quote }}
+        {{- end }}
+        {{- end }}
+      {{- if .Values.services.homeassistant.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- with .Values.services.homeassistant.nodeSelector }}
+      nodeSelector:
+        {{- range $key, $value := . }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.services.homeassistant.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.homeassistant.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with  .Values.services.homeassistant.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
