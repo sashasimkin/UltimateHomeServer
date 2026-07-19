@@ -46,5 +46,5 @@ spec:
       volumes:
         - name: playwright-config
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.playwright }}
 {{- end }}

@@ -1,0 +1,57 @@
+{{- range $name, $volume := .Values.common.storage.persistentVolumes }}
+{{- if and $volume.migration $volume.migration.enabled }}
+{{- $paths := required (printf "common.storage.persistentVolumes.%s.migration.sourcePaths is required when migration is enabled" $name) $volume.migration.sourcePaths }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ $name }}-persistence-migration
+  namespace: {{ $.Values.common.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/component: persistence-migration
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $name }}-persistence-migration
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: copy-state
+          image: busybox:1.37
+          command:
+            - sh
+            - -ec
+            - |
+              tar -C /source -cf - {{ range $path := $paths }}{{ $path | quote }} {{ end }}| tar -C /destination -xpf -
+          volumeMounts:
+            - name: source
+              mountPath: /source
+              readOnly: true
+            - name: destination
+              mountPath: /destination
+      volumes:
+        - name: source
+          persistentVolumeClaim:
+            claimName: {{ required (printf "common.storage.persistentVolumes.%s.migration.sourceClaim is required when migration is enabled" $name) $volume.migration.sourceClaim }}
+        - name: destination
+          persistentVolumeClaim:
+            claimName: {{ required (printf "common.storage.persistentVolumes.%s.claimName is required when migration is enabled" $name) $volume.claimName }}
+      {{- with $volume.migration.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $volume.migration.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $volume.migration.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

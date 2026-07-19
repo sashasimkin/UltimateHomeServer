@@ -50,7 +50,7 @@ spec:
       volumes:
         - name: homeassistant-data
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.homeassistant }}
         {{- with .Values.services.homeassistant.usbDevices }}
         {{- range $key, $value := . }}
         - name: {{ $key }}

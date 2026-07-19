@@ -59,7 +59,7 @@ spec:
       volumes:
         - name: jellyfin-data
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.jellyfin }}
         - name: library
           hostPath:
             path: "{{ .Values.services.jellyfin.library }}"

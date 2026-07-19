@@ -1,0 +1,19 @@
+{{- range $name, $volume := .Values.common.storage.persistentVolumes }}
+{{- if $volume.create }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ required (printf "common.storage.persistentVolumes.%s.claimName is required when create is true" $name) $volume.claimName }}
+  namespace: {{ $.Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+spec:
+  accessModes:
+{{ toYaml ($volume.accessModes | default (list "ReadWriteOnce")) | nindent 4 }}
+  storageClassName: {{ required (printf "common.storage.persistentVolumes.%s.storageClassName is required when create is true" $name) $volume.storageClassName }}
+  resources:
+    requests:
+      storage: {{ required (printf "common.storage.persistentVolumes.%s.storageSize is required when create is true" $name) $volume.storageSize }}
+{{- end }}
+{{- end }}

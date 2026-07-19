@@ -65,6 +65,13 @@ Here are some useful resources to get you started:
 
 ---
 
+## Dedicated persistence
+
+Define opt-in PVCs in `common.storage.persistentVolumes`; enable a service with
+`services.<name>.persistence.use: true`. Each PVC can define `migration` with
+source paths; the chart creates one copy Job per enabled migration. Existing
+services keep using `longhorn-volv-pvc` until switched.
+
 ## CLI
 
 View the [`uhs-cli` repository](https://github.com/TechSquidTV/uhs-cli) for more information.

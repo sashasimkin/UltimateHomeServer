@@ -44,5 +44,5 @@ spec:
       volumes:
         - name: changedetectionio-config
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.changedetectionio }}
 {{- end }}

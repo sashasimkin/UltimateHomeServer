@@ -51,7 +51,7 @@ spec:
       volumes:
         - name: qbittorrent-config
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.qbittorrent }}
         - name: data
           hostPath:
             path: "{{ .Values.services.qbittorrent.data }}"

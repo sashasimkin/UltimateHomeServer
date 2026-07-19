@@ -8,6 +8,22 @@ common:
         longhorn:
             enabled: true
             storageSize: 10Gi
+        # Opt-in dedicated PVCs. Add one entry per service as it is migrated.
+        persistentVolumes:
+            jellyfin:
+                create: false
+                claimName: jellyfin-data
+                accessModes: [ReadWriteOnce]
+                storageClassName: longhorn-strict-local
+                storageSize: 10Gi
+                migration:
+                    enabled: false
+                    sourceClaim: longhorn-volv-pvc
+                    nodeSelector:
+                        location: home
+                    sourcePaths:
+                        - jellyfin/config
+                        - jellyfin/cache
 services:
     traefik:
         tlsSecretName: "cert-manager-provided-secret"
@@ -147,6 +163,10 @@ services:
         config: jellyfin/config
         cache: jellyfin/cache
         library: /data/library
+        # Opt in after common.storage.persistentVolumes.jellyfin is created.
+        persistence:
+            use: false
+            claimName: jellyfin-data
         # GPU on OrangePI 5
         privileged: true
         gpuDevices:

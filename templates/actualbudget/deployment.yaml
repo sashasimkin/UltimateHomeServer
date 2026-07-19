@@ -42,7 +42,7 @@ spec:
       volumes:
         - name: actualbudget-data
           persistentVolumeClaim:
-            claimName: longhorn-volv-pvc
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.actualbudget }}
       {{- with .Values.services.actualbudget.nodeSelector }}
       nodeSelector:
         {{- range $key, $value := . }}
