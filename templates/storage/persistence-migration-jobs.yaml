@@ -7,8 +7,6 @@ kind: Job
 metadata:
   name: {{ $name }}-persistence-migration
   namespace: {{ $.Values.common.namespace }}
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
   labels:
     app.kubernetes.io/name: {{ $name }}
     app.kubernetes.io/component: persistence-migration
