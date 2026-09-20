@@ -43,7 +43,7 @@ Here are some useful resources to get you started:
 - 🎬 [`radarr`](https://radarr.video/): An automated movie download and management system.
 - 🐯 [`prowlarr`](https://github.com/Prowlarr/Prowlarr): Manage indexers for your *arr stack.
 - [`bazarr`](https://www.bazarr.media/): Automated subtitles for sonarr & radarr.
-- 👁️ [`overseerr`](https://overseerr.dev/): A request management and media discovery tool.
+- 👁️ [`seerr`](https://seerr.dev/): A request management and media discovery tool for Jellyfin, Plex and Emby.
 - 📊 [`tautulli`](https://tautulli.com/): Monitor your Plex Media Server.
 - 🐇 [`autobrr`](https://autobrr.com/): Automatically search and download from IRC.
 ### Download

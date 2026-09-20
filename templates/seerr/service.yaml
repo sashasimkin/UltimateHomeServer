@@ -1,18 +1,18 @@
-{{- if .Values.services.overseerr.enabled }}
+{{- if .Values.services.seerr.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: overseerr
+  name: seerr
   namespace: {{ .Values.common.namespace }}
   labels:
-    app.kubernetes.io/name: overseerr
+    app.kubernetes.io/name: seerr
 spec:
   type: ClusterIP
   ports:
     - name: http
-      port: {{ .Values.services.overseerr.ports.http }}
+      port: {{ .Values.services.seerr.ports.http }}
       targetPort: http
       protocol: TCP
   selector:
-    app.kubernetes.io/name: overseerr
+    app.kubernetes.io/name: seerr
 {{- end }}

@@ -1,0 +1,41 @@
+{{- if .Values.services.seerr.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seerr
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: seerr
+spec:
+  revisionHistoryLimit: 3
+  replicas: {{ .Values.services.seerr.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: seerr
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: seerr
+    spec:
+      containers:
+        - name: seerr
+          image: "{{ .Values.services.seerr.image.repository }}:{{ .Values.services.seerr.image.tag }}"
+          imagePullPolicy: {{ .Values.services.seerr.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: "{{ .Values.common.tz }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.seerr.ports.http }}
+              protocol: TCP
+          volumeMounts:
+            - name: seerr-config
+              mountPath: /app/config
+      volumes:
+        - name: seerr-config
+          hostPath:
+            path: "{{ .Values.services.seerr.config }}"
+            type: DirectoryOrCreate
+{{- end }}

@@ -192,16 +192,16 @@ services:
             http: 5000
         config: /opt/kavita/config
         library: /data/library/books
-    overseerr:
-        enabled: false
+    seerr:
+        enabled: true
         replicaCount: 1
         image:
-            repository: lscr.io/linuxserver/overseerr
+            repository: ghcr.io/seerr-team/seerr
             tag: latest
             pullPolicy: Always
         ports:
             http: 5055
-        config: /opt/overseerr/config
+        config: /opt/seerr/config
     actualbudget:
         enabled: false
         replicaCount: 1
