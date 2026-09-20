@@ -42,11 +42,24 @@ spec:
 
       volumes:
         - name: sonarr-config
+          {{- if and .Values.services.sonarr.persistence .Values.services.sonarr.persistence.use }}
+          persistentVolumeClaim:
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.sonarr }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.sonarr.config }}"
             type: Directory
+          {{- end }}
         - name: data
           hostPath:
             path: "{{ .Values.services.sonarr.data }}"
             type: Directory
+      {{- with .Values.services.sonarr.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.sonarr.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}

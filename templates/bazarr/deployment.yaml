@@ -41,11 +41,24 @@ spec:
               mountPath: /library
       volumes:
         - name: bazarr-config
+          {{- if and .Values.services.bazarr.persistence .Values.services.bazarr.persistence.use }}
+          persistentVolumeClaim:
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.bazarr }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.bazarr.config }}"
             type: Directory
+          {{- end }}
         - name: library
           hostPath:
             path: "{{ .Values.services.bazarr.library }}"
             type: Directory
+      {{- with .Values.services.bazarr.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.bazarr.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
