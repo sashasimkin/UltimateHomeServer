@@ -42,5 +42,5 @@ spec:
         - name: prowlarr-config
           hostPath:
             path: "{{ .Values.services.prowlarr.config }}"
-            type: Directory
+            type: DirectoryOrCreate
 {{- end }}
