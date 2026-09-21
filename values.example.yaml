@@ -163,6 +163,12 @@ services:
         config: jellyfin/config
         cache: jellyfin/cache
         library: /data/library
+        libraryPersistence:
+            enabled: false
+            claimName: ""
+            mountPath: /library
+            readOnly: true
+            readyFile: ""
         # Opt in after common.storage.persistentVolumes.jellyfin is created.
         persistence:
             use: false
@@ -292,6 +298,12 @@ services:
             http: 7878
         config: /opt/radarr/config
         data: /data
+        libraryPersistence:
+            enabled: false
+            claimName: ""
+            mountPath: /library
+            readOnly: false
+            readyFile: ""
     sabnzbd:
         enabled: false
         replicaCount: 1
@@ -314,6 +326,12 @@ services:
             http: 8989
         config: /opt/sonarr/config
         data: /data
+        libraryPersistence:
+            enabled: false
+            claimName: ""
+            mountPath: /library
+            readOnly: false
+            readyFile: ""
     bazarr:
         enabled: true
         replicaCount: 1
@@ -325,6 +343,12 @@ services:
             http: 6767
         config: config/bazarr
         data: /data
+        libraryPersistence:
+            enabled: false
+            claimName: ""
+            mountPath: /library
+            readOnly: false
+            readyFile: ""
     tautulli:
         enabled: false
         replicaCount: 1

@@ -1,4 +1,5 @@
 {{- if .Values.services.bazarr.enabled }}
+{{- $libraryPersistence := default dict .Values.services.bazarr.libraryPersistence }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -38,7 +39,20 @@ spec:
             - name: bazarr-config
               mountPath: /config
             - name: library
-              mountPath: /library
+              mountPath: {{ default "/library" $libraryPersistence.mountPath }}
+              readOnly: {{ default false $libraryPersistence.readOnly }}
+          {{- if and $libraryPersistence.enabled $libraryPersistence.readyFile }}
+          startupProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 10
+            failureThreshold: 3
+          {{- end }}
       volumes:
         - name: bazarr-config
           {{- if and .Values.services.bazarr.persistence .Values.services.bazarr.persistence.use }}
@@ -50,9 +64,14 @@ spec:
             type: Directory
           {{- end }}
         - name: library
+          {{- if $libraryPersistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ required "services.bazarr.libraryPersistence.claimName is required" $libraryPersistence.claimName }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.bazarr.library }}"
             type: Directory
+          {{- end }}
       {{- with .Values.services.bazarr.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
