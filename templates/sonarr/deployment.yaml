@@ -1,4 +1,5 @@
 {{- if .Values.services.sonarr.enabled }}
+{{- $libraryPersistence := default dict .Values.services.sonarr.libraryPersistence }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,6 +40,24 @@ spec:
               mountPath: /config
             - name: data
               mountPath: /data
+            {{- if $libraryPersistence.enabled }}
+            - name: library
+              mountPath: {{ default "/library" $libraryPersistence.mountPath }}
+              readOnly: {{ default false $libraryPersistence.readOnly }}
+            {{- end }}
+
+          {{- if and $libraryPersistence.enabled $libraryPersistence.readyFile }}
+          startupProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 10
+            failureThreshold: 3
+          {{- end }}
 
       volumes:
         - name: sonarr-config
@@ -54,6 +73,11 @@ spec:
           hostPath:
             path: "{{ .Values.services.sonarr.data }}"
             type: Directory
+        {{- if $libraryPersistence.enabled }}
+        - name: library
+          persistentVolumeClaim:
+            claimName: {{ required "services.sonarr.libraryPersistence.claimName is required" $libraryPersistence.claimName }}
+        {{- end }}
       {{- with .Values.services.sonarr.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}

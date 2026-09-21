@@ -1,4 +1,5 @@
 {{- if .Values.services.jellyfin.enabled }}
+{{- $libraryPersistence := default dict .Values.services.jellyfin.libraryPersistence }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -49,21 +50,39 @@ spec:
               mountPath: /cache
               subPath: "{{ .Values.services.jellyfin.cache }}"
             - name: library
-              mountPath: /library
+              mountPath: {{ default "/library" $libraryPersistence.mountPath }}
+              readOnly: {{ default false $libraryPersistence.readOnly }}
             {{- with .Values.services.jellyfin.gpuDevices }}
             {{- range $key, $value := . }}
             - name: {{ $key }}
               mountPath: {{ $value | quote }}
             {{- end }}
             {{- end }}
+          {{- if and $libraryPersistence.enabled $libraryPersistence.readyFile }}
+          startupProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            exec:
+              command: [sh, -ec, 'test -f "$1"', --, {{ printf "%s/%s" (trimSuffix "/" (default "/library" $libraryPersistence.mountPath)) $libraryPersistence.readyFile | quote }}]
+            periodSeconds: 10
+            failureThreshold: 3
+          {{- end }}
       volumes:
         - name: jellyfin-data
           persistentVolumeClaim:
             claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.jellyfin }}
         - name: library
+          {{- if $libraryPersistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ required "services.jellyfin.libraryPersistence.claimName is required" $libraryPersistence.claimName }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.jellyfin.library }}"
             type: Directory
+          {{- end }}
         {{- with .Values.services.jellyfin.gpuDevices }}
         {{- range $key, $value := . }}
         - name: {{ $key }}
