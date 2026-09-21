@@ -40,7 +40,9 @@ spec:
               mountPath: /config
             - name: library
               mountPath: {{ default "/library" $libraryPersistence.mountPath }}
+              {{- if $libraryPersistence.enabled }}
               readOnly: {{ default false $libraryPersistence.readOnly }}
+              {{- end }}
           {{- if and $libraryPersistence.enabled $libraryPersistence.readyFile }}
           startupProbe:
             exec:

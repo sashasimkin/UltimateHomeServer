@@ -51,7 +51,9 @@ spec:
               subPath: "{{ .Values.services.jellyfin.cache }}"
             - name: library
               mountPath: {{ default "/library" $libraryPersistence.mountPath }}
+              {{- if $libraryPersistence.enabled }}
               readOnly: {{ default false $libraryPersistence.readOnly }}
+              {{- end }}
             {{- with .Values.services.jellyfin.gpuDevices }}
             {{- range $key, $value := . }}
             - name: {{ $key }}
