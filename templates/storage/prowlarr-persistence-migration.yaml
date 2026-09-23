@@ -1,0 +1,33 @@
+{{- $volume := .Values.common.storage.persistentVolumes.prowlarr }}
+{{- if and $volume $volume.migration $volume.migration.enabled $volume.migration.hostPath }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prowlarr-persistence-migration
+  namespace: {{ .Values.common.namespace }}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      nodeSelector:
+        {{- toYaml $volume.migration.nodeSelector | nindent 8 }}
+      containers:
+        - name: copy-state
+          image: busybox:1.37
+          command: ["sh", "-ec", "cp -a /source/. /destination/ && chown -R 1000:1000 /destination"]
+          volumeMounts:
+            - name: source
+              mountPath: /source
+              readOnly: true
+            - name: destination
+              mountPath: /destination
+      volumes:
+        - name: source
+          hostPath:
+            path: {{ required "common.storage.persistentVolumes.prowlarr.migration.sourcePath is required" $volume.migration.sourcePath }}
+            type: Directory
+        - name: destination
+          persistentVolumeClaim:
+            claimName: {{ required "common.storage.persistentVolumes.prowlarr.claimName is required" $volume.claimName }}
+{{- end }}

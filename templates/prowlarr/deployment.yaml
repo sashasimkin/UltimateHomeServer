@@ -40,7 +40,12 @@ spec:
 
       volumes:
         - name: prowlarr-config
+          {{- if and .Values.services.prowlarr.persistence .Values.services.prowlarr.persistence.use }}
+          persistentVolumeClaim:
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.prowlarr }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.prowlarr.config }}"
             type: DirectoryOrCreate
+          {{- end }}
 {{- end }}
