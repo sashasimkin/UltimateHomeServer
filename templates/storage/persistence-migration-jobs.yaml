@@ -1,5 +1,5 @@
 {{- range $name, $volume := .Values.common.storage.persistentVolumes }}
-{{- if and $volume.migration $volume.migration.enabled }}
+{{- if and $volume.migration $volume.migration.enabled (not $volume.migration.hostPath) }}
 {{- $paths := required (printf "common.storage.persistentVolumes.%s.migration.sourcePaths is required when migration is enabled" $name) $volume.migration.sourcePaths }}
 ---
 apiVersion: batch/v1
