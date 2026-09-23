@@ -48,7 +48,12 @@ spec:
               mountPath: /app/config
       volumes:
         - name: seerr-config
+          {{- if and .Values.services.seerr.persistence .Values.services.seerr.persistence.use }}
+          persistentVolumeClaim:
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.seerr }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.seerr.config }}"
             type: DirectoryOrCreate
+          {{- end }}
 {{- end }}
