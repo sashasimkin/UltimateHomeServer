@@ -37,6 +37,23 @@ services:
         ports:
             http: 8000
         config: /opt/apprise/config
+        # Set use after creating the referenced PVC under
+        # common.storage.persistentVolumes.
+        persistence:
+            use: false
+            claimName: apprise-data
+        # An existing Secret is mounted read-only for a controlled runtime
+        # configuration bootstrap; the chart does not create or log it.
+        existingSecret: ""
+        secretMountPath: /run/secrets/apprise
+        # Attachments are disabled unless a writable attachment volume is
+        # explicitly supplied by a deployment.
+        attachSize: "0"
+        nodeSelector: {}
+        affinity: {}
+        tolerations: []
+        resources: {}
+        securityContext: {}
     autobrr:
         enabled: false
         replicaCount: 1

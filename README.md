@@ -57,6 +57,17 @@ Here are some useful resources to get you started:
 ### Notifications
 - 📲 [`gotify`](https://gotify.net/docs/plugin): Self-hosted push notifications.
 - 📲 [`apprise`](https://github.com/caronc/apprise-api): Multi-platform push notifications.
+
+#### Apprise persistence and credentials
+
+Apprise uses `/config` for its persistent API configuration. Deployments can
+opt into a PVC with `services.apprise.persistence.use` and
+`services.apprise.persistence.claimName`; otherwise the legacy `config`
+hostPath is used. An existing deployment-owned Secret can be mounted read-only
+with `services.apprise.existingSecret`. The chart neither creates that Secret
+nor interprets its contents, so credentials remain outside chart values and
+logs. `attachSize` defaults to `0`; a deployment enabling attachments must
+provide an appropriate writable attachment volume separately.
 ### Automation
 - 🦅 [`huginn`](https://github.com/huginn/huginn): Create agents that monitor and act on your behalf.
 - 🔄 [`changedetection.io`](https://changedetection.io): Monitor web pages for changes.

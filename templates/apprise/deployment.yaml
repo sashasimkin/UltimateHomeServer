@@ -19,6 +19,7 @@ spec:
       labels:
         app.kubernetes.io/name: apprise
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: apprise
           image: "{{ .Values.services.apprise.image.repository }}:{{ .Values.services.apprise.image.tag }}"
@@ -30,6 +31,8 @@ spec:
               value: "1000"
             - name: TZ
               value: "{{ .Values.common.tz }}"
+            - name: APPRISE_ATTACH_SIZE
+              value: {{ default "0" .Values.services.apprise.attachSize | quote }}
           ports:
             - name: http
               containerPort: {{ .Values.services.apprise.ports.http }}
@@ -37,10 +40,45 @@ spec:
           volumeMounts:
             - name: apprise-config
               mountPath: /config
+            {{- with .Values.services.apprise.existingSecret }}
+            - name: apprise-credentials
+              mountPath: {{ default "/run/secrets/apprise" $.Values.services.apprise.secretMountPath | quote }}
+              readOnly: true
+            {{- end }}
+          {{- with .Values.services.apprise.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.services.apprise.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 
       volumes:
         - name: apprise-config
+          {{- if and .Values.services.apprise.persistence .Values.services.apprise.persistence.use }}
+          persistentVolumeClaim:
+            claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.apprise }}
+          {{- else }}
           hostPath:
             path: "{{ .Values.services.apprise.config }}"
-            type: Directory
+            type: DirectoryOrCreate
+          {{- end }}
+        {{- with .Values.services.apprise.existingSecret }}
+        - name: apprise-credentials
+          secret:
+            secretName: {{ . }}
+        {{- end }}
+      {{- with .Values.services.apprise.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.apprise.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.apprise.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
