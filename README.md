@@ -73,8 +73,10 @@ provide an appropriate writable attachment volume separately.
 
 #### Monobank to Firefly III webhook
 
-The `monobankFirefly3Bot` service is opt-in. Set its `fireflyApiUrl`,
-`webhookDomain`, and non-secret `config` rules in your deployment values. Create
+The `monobankFirefly3Bot` service is opt-in. Its `fireflyApiUrl` defaults to
+the in-cluster Firefly Service URL in namespace `home-media`; change it if your
+Firefly Service uses a different namespace or port. Set `webhookDomain` and
+non-secret `config` rules in your deployment values. Create
 the referenced Kubernetes Secret separately with `FIREFLY3_TOKEN`,
 `MONOBANK_TOKEN`, and `MONOBANK_WEBHOOK_SECRET`; the chart does not create or
 store these credentials. The bot listens on port 8080 and exposes `/health` for

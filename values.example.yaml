@@ -269,7 +269,7 @@ services:
             http: 8080
         listen: ":8080"
         timezoneHoursDiff: 0
-        fireflyApiUrl: "https://budget.example.com/api"
+        fireflyApiUrl: "http://firefly.home-media.svc.cluster.local:8080/api"
         webhookDomain: ""
         # Create this Secret out of band. It must contain FIREFLY3_TOKEN,
         # MONOBANK_TOKEN, and MONOBANK_WEBHOOK_SECRET.
