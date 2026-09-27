@@ -18,11 +18,11 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: cloudflared
+      {{- if not .Values.services.cloudflared.remoteManaged }}
       annotations:
-        {{- if not .Values.services.cloudflared.remoteManaged }}
         checksum/config: {{ include (print $.Template.BasePath "/cloudflared/configmap.yaml") . | sha256sum}}
         checksum/file: {{ (.Files.Get "files/cloudflared.conf") | sha256sum }}
-        {{- end }}
+      {{- end }}
     spec:
       containers:
       - name: cloudflared
