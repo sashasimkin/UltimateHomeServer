@@ -85,6 +85,10 @@ services:
         url: http://foo.example.com
         target: localhost:8080
         additionalIngress: []
+        # For remotely-managed Cloudflare Tunnels, create an existing Secret
+        # with key `token`; locally-managed tunnels keep using credentials.json.
+        remoteManaged: false
+        tokenSecret: tunnel-token
     gotify:
         enabled: false
         replicaCount: 1
