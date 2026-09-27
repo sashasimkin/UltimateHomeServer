@@ -84,6 +84,7 @@ services:
         tunnel: example-tunnel
         url: http://foo.example.com
         target: localhost:8080
+        additionalIngress: []
     gotify:
         enabled: false
         replicaCount: 1
@@ -256,6 +257,32 @@ services:
                 schedule: "0 18 * * *" # Default to 18:00 Kyiv time (UTC+3 for EEST)
                 successfulJobsHistoryLimit: 3
                 failedJobsHistoryLimit: 1
+
+    monobankFirefly3Bot:
+        enabled: false
+        replicaCount: 1
+        image:
+            repository: ghcr.io/sashasimkin/monobank-firefly3-bot
+            tag: latest
+            pullPolicy: IfNotPresent
+        ports:
+            http: 8080
+        listen: ":8080"
+        timezoneHoursDiff: 0
+        fireflyApiUrl: "https://budget.example.com/api"
+        webhookDomain: ""
+        # Create this Secret out of band. It must contain FIREFLY3_TOKEN,
+        # MONOBANK_TOKEN, and MONOBANK_WEBHOOK_SECRET.
+        existingSecret: ""
+        # Non-secret routing rules. Keep account IDs and matching rules in your
+        # private values file; never put API tokens in chart values.
+        config:
+            accounts: []
+            transaction_types: []
+        resources: {}
+        nodeSelector: {}
+        affinity: {}
+        tolerations: []
 
     playwright:
         enabled: false

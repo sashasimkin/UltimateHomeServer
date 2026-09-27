@@ -57,6 +57,8 @@ Here are some useful resources to get you started:
 ### Notifications
 - 📲 [`gotify`](https://gotify.net/docs/plugin): Self-hosted push notifications.
 - 📲 [`apprise`](https://github.com/caronc/apprise-api): Multi-platform push notifications.
+### Finance
+- 🏦 [`monobank-firefly3-bot`](https://github.com/sashasimkin/monobank-firefly3-bot): Import Monobank transactions into Firefly III through a webhook.
 
 #### Apprise persistence and credentials
 
@@ -68,6 +70,17 @@ with `services.apprise.existingSecret`. The chart neither creates that Secret
 nor interprets its contents, so credentials remain outside chart values and
 logs. `attachSize` defaults to `0`; a deployment enabling attachments must
 provide an appropriate writable attachment volume separately.
+
+#### Monobank to Firefly III webhook
+
+The `monobankFirefly3Bot` service is opt-in. Set its `fireflyApiUrl`,
+`webhookDomain`, and non-secret `config` rules in your deployment values. Create
+the referenced Kubernetes Secret separately with `FIREFLY3_TOKEN`,
+`MONOBANK_TOKEN`, and `MONOBANK_WEBHOOK_SECRET`; the chart does not create or
+store these credentials. The bot listens on port 8080 and exposes `/health` for
+probes. For a Cloudflare Tunnel, add a `services.cloudflared.additionalIngress`
+entry routing the webhook hostname to
+`http://monobank-firefly3-bot.<namespace>.svc.cluster.local:8080`.
 ### Automation
 - 🦅 [`huginn`](https://github.com/huginn/huginn): Create agents that monitor and act on your behalf.
 - 🔄 [`changedetection.io`](https://changedetection.io): Monitor web pages for changes.

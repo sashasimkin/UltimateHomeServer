@@ -1,0 +1,11 @@
+{{- if .Values.services.monobankFirefly3Bot.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monobank-firefly3-bot-config
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: monobank-firefly3-bot
+data:
+  config.json: {{ .Values.services.monobankFirefly3Bot.config | toJson | quote }}
+{{- end }}
