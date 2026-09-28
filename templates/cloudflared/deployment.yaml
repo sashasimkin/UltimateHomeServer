@@ -31,6 +31,8 @@ spec:
         {{- if .Values.services.cloudflared.remoteManaged }}
         args:
         - tunnel
+        - --metrics
+        - 0.0.0.0:2000
         - --no-autoupdate
         - run
         env:
@@ -42,6 +44,8 @@ spec:
         {{- else }}
         args:
         - tunnel
+        - --metrics
+        - 0.0.0.0:2000
         - --config
         - /etc/cloudflared/config/config.yaml
         - run
