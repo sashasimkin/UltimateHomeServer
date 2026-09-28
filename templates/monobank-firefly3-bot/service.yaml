@@ -1,0 +1,18 @@
+{{- if .Values.services.monobankFirefly3Bot.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: monobank-firefly3-bot
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: monobank-firefly3-bot
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: {{ .Values.services.monobankFirefly3Bot.ports.http }}
+      targetPort: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: monobank-firefly3-bot
+{{- end }}

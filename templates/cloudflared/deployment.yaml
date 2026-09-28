@@ -18,22 +18,34 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: cloudflared
+      {{- if not .Values.services.cloudflared.remoteManaged }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/cloudflared/configmap.yaml") . | sha256sum}}
         checksum/file: {{ (.Files.Get "files/cloudflared.conf") | sha256sum }}
+      {{- end }}
     spec:
       containers:
       - name: cloudflared
         image: "{{ .Values.services.cloudflared.image.repository }}:{{ .Values.services.cloudflared.image.tag }}"
         imagePullPolicy: {{ .Values.services.cloudflared.image.pullPolicy }}
+        {{- if .Values.services.cloudflared.remoteManaged }}
         args:
         - tunnel
-        # Points cloudflared to the config file, which configures what
-        # cloudflared will actually do. This file is created by a ConfigMap
-        # below.
+        - --no-autoupdate
+        - run
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ required "services.cloudflared.tokenSecret is required for remote-managed tunnels" .Values.services.cloudflared.tokenSecret }}
+              key: token
+        {{- else }}
+        args:
+        - tunnel
         - --config
         - /etc/cloudflared/config/config.yaml
         - run
+        {{- end }}
         livenessProbe:
           httpGet:
             # Cloudflared has a /ready endpoint which returns 200 if and only if
@@ -43,6 +55,7 @@ spec:
           failureThreshold: 1
           initialDelaySeconds: 10
           periodSeconds: 10
+        {{- if not .Values.services.cloudflared.remoteManaged }}
         volumeMounts:
         - name: config
           mountPath: /etc/cloudflared/config
@@ -70,4 +83,5 @@ spec:
           items:
           - key: config.yaml
             path: config.yaml
+        {{- end }}
 {{- end }}
