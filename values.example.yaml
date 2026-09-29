@@ -283,6 +283,27 @@ services:
         config:
             accounts: []
             transaction_types: []
+            import_unmatched_transactions: false
+        # A standalone hourly statement poller. It can run while the webhook
+        # Deployment remains disabled. The checkpoint lives on a PVC.
+        cronSync:
+            enabled: false
+            schedule: "0 * * * *"
+            overlapHours: 48
+            state:
+                size: 64Mi
+                storageClassName: ""
+            backoffLimit: 1
+            activeDeadlineSeconds: 1800
+            successfulJobsHistoryLimit: 1
+            failedJobsHistoryLimit: 3
+        # Opt-in one-off backfill. Requires transaction_types to be configured.
+        # Set runId to a new value for each intentional run.
+        historicalImport:
+            enabled: false
+            from: ""
+            runId: ""
+            activeDeadlineSeconds: 21600
         resources: {}
         nodeSelector: {}
         affinity: {}

@@ -1,0 +1,49 @@
+{{- $bot := .Values.services.monobankFirefly3Bot }}
+{{- if $bot.historicalImport.enabled }}
+{{- $_ := required "services.monobankFirefly3Bot.existingSecret is required for historicalImport" $bot.existingSecret }}
+{{- $_ := required "services.monobankFirefly3Bot.historicalImport.from must be YYYY-MM-DD" $bot.historicalImport.from }}
+{{- $runID := required "services.monobankFirefly3Bot.historicalImport.runId must change for each run" $bot.historicalImport.runId }}
+{{- $safeRunID := regexReplaceAll "[^a-z0-9-]" ($runID | lower) "-" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "monobank-firefly3-history-%s" $safeRunID | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: monobank-firefly3-bot
+    app.kubernetes.io/component: historical-import
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ $bot.historicalImport.activeDeadlineSeconds }}
+  ttlSecondsAfterFinished: 604800
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: monobank-firefly3-bot
+        app.kubernetes.io/component: historical-import
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: history-import
+          image: "{{ $bot.image.repository }}:{{ $bot.image.tag }}"
+          imagePullPolicy: {{ $bot.image.pullPolicy }}
+          args: ["--monobank-import-history={{ $bot.historicalImport.from }}"]
+          env:
+            - name: CONFIG_PATH
+              value: /etc/monobank-firefly3-bot/config.json
+            - name: TIMEZONE_HOURS_DIFF
+              value: {{ $bot.timezoneHoursDiff | quote }}
+            - name: FIREFLY3_API_URL
+              value: {{ $bot.fireflyApiUrl | quote }}
+          envFrom:
+            - secretRef:
+                name: {{ $bot.existingSecret }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/monobank-firefly3-bot
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: monobank-firefly3-bot-config
+{{- end }}

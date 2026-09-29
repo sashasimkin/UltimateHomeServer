@@ -1,0 +1,64 @@
+{{- $bot := .Values.services.monobankFirefly3Bot }}
+{{- if $bot.cronSync.enabled }}
+{{- $_ := required "services.monobankFirefly3Bot.existingSecret is required for cronSync" $bot.existingSecret }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: monobank-firefly3-bot-sync
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: monobank-firefly3-bot
+    app.kubernetes.io/component: statement-sync
+spec:
+  schedule: {{ $bot.cronSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 900
+  successfulJobsHistoryLimit: {{ $bot.cronSync.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $bot.cronSync.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ $bot.cronSync.backoffLimit }}
+      activeDeadlineSeconds: {{ $bot.cronSync.activeDeadlineSeconds }}
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: monobank-firefly3-bot
+            app.kubernetes.io/component: statement-sync
+        spec:
+          restartPolicy: Never
+          securityContext:
+            fsGroup: 1000
+          containers:
+            - name: statement-sync
+              image: "{{ $bot.image.repository }}:{{ $bot.image.tag }}"
+              imagePullPolicy: {{ $bot.image.pullPolicy }}
+              args: ["--monobank-sync"]
+              env:
+                - name: CONFIG_PATH
+                  value: /etc/monobank-firefly3-bot/config.json
+                - name: TIMEZONE_HOURS_DIFF
+                  value: {{ $bot.timezoneHoursDiff | quote }}
+                - name: FIREFLY3_API_URL
+                  value: {{ $bot.fireflyApiUrl | quote }}
+                - name: MONOBANK_SYNC_STATE_FILE
+                  value: /data/sync-state.json
+                - name: MONOBANK_SYNC_OVERLAP_HOURS
+                  value: {{ $bot.cronSync.overlapHours | quote }}
+              envFrom:
+                - secretRef:
+                    name: {{ $bot.existingSecret }}
+              volumeMounts:
+                - name: config
+                  mountPath: /etc/monobank-firefly3-bot
+                  readOnly: true
+                - name: state
+                  mountPath: /data
+          volumes:
+            - name: config
+              configMap:
+                name: monobank-firefly3-bot-config
+            - name: state
+              persistentVolumeClaim:
+                claimName: monobank-firefly3-bot-sync-state
+{{- end }}

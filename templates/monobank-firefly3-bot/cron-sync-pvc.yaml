@@ -1,0 +1,20 @@
+{{- $bot := .Values.services.monobankFirefly3Bot }}
+{{- if $bot.cronSync.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: monobank-firefly3-bot-sync-state
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: monobank-firefly3-bot
+    app.kubernetes.io/component: statement-sync
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $bot.cronSync.state.size }}
+  {{- with $bot.cronSync.state.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}
