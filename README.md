@@ -83,6 +83,24 @@ store these credentials. The bot listens on port 8080 and exposes `/health` for
 probes. For a Cloudflare Tunnel, add a `services.cloudflared.additionalIngress`
 entry routing the webhook hostname to
 `http://monobank-firefly3-bot.<namespace>.svc.cluster.local:8080`.
+
+The separate `services.monobankFirefly3Bot.cronSync` option polls the mapped
+Monobank accounts using statement APIs, so it can run while the webhook server
+is disabled. Its checkpoint is stored on a chart-managed PVC; configure a
+storage class if the cluster has no default. `config.import_unmatched_transactions`
+can import unmatched new operations under an `Uncategorized` category until
+merchant/MCC rules are ready. The poller overlaps its saved cursor to catch
+late statements and deduplicates through Firefly transaction external IDs.
+Monobank limits statement requests to one per minute, so a run for several
+accounts lasts a few minutes even when the schedule is hourly.
+On the first run, the job only records the starting cursor for each account;
+it leaves prior transactions untouched. Subsequent runs import new operations.
+
+`historicalImport` creates a one-off Job when enabled. It requires a start date,
+a unique `runId`, and configured transaction rules; leave it disabled until the
+MCC and refund rules have been reviewed. Change `runId` for each intentional
+backfill. A history import may take time because it is chunked to comply with
+Monobank's statement-window and rate limits.
 ### Automation
 - 🦅 [`huginn`](https://github.com/huginn/huginn): Create agents that monitor and act on your behalf.
 - 🔄 [`changedetection.io`](https://changedetection.io): Monitor web pages for changes.
