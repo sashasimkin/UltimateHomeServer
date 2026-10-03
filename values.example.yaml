@@ -401,6 +401,34 @@ services:
             mountPath: /library
             readOnly: false
             readyFile: ""
+    unpackerr:
+        enabled: false
+        replicaCount: 1
+        image:
+            repository: ghcr.io/unpackerr/unpackerr
+            tag: latest
+            pullPolicy: IfNotPresent
+        sonarr:
+            url: http://sonarr:8989
+            apiKeySecretName: ""
+            apiKeySecretKey: SONARR_API_KEY
+        downloads:
+            # Must refer to the same files and path Sonarr reports for completed downloads.
+            hostPath: ""
+            mountPath: /data
+        resources:
+            requests:
+                cpu: 50m
+                memory: 256Mi
+            limits:
+                memory: 1Gi
+        nodeSelector: {}
+        affinity: {}
+        tolerations: []
+        podSecurityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
     bazarr:
         enabled: true
         replicaCount: 1

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: Ultimate Home Server
-version: 1.0.0
+version: 1.0.1
 description: The ultimate home server
 type: application
 icon: https://raw.githubusercontent.com/TechSquidTV/UltimateHomeServer/main/.github/img/uhs-logo.svg
@@ -28,4 +28,5 @@ keywords:
   - sonarr
   - tautulli
   - thelounge
+  - unpackerr
   - ultimatehomeserver

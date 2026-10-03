@@ -43,6 +43,7 @@ Here are some useful resources to get you started:
 - 🎬 [`radarr`](https://radarr.video/): An automated movie download and management system.
 - 🐯 [`prowlarr`](https://github.com/Prowlarr/Prowlarr): Manage indexers for your *arr stack.
 - [`bazarr`](https://www.bazarr.media/): Automated subtitles for sonarr & radarr.
+- [`unpackerr`](https://unpackerr.zip/): Extract completed Sonarr downloads from archives before import.
 - 👁️ [`seerr`](https://seerr.dev/): A request management and media discovery tool for Jellyfin, Plex and Emby.
 - 📊 [`tautulli`](https://tautulli.com/): Monitor your Plex Media Server.
 - 🐇 [`autobrr`](https://autobrr.com/): Automatically search and download from IRC.
@@ -70,6 +71,17 @@ with `services.apprise.existingSecret`. The chart neither creates that Secret
 nor interprets its contents, so credentials remain outside chart values and
 logs. `attachSize` defaults to `0`; a deployment enabling attachments must
 provide an appropriate writable attachment volume separately.
+
+#### Unpackerr archive extraction
+
+Unpackerr is an opt-in worker for extracting archived downloads tracked by
+Sonarr. Set `services.unpackerr.enabled`, provide the Sonarr URL and an existing
+Secret containing its API key, and mount the download filesystem at the same
+path Sonarr reports for completed downloads. `downloads.hostPath` is the node
+path and `downloads.mountPath` is the path visible inside both applications.
+The chart does not create the API Secret or expose a web service. The selected
+node must have the configured host path, with write permissions for the
+Unpackerr process.
 
 #### Monobank to Firefly III webhook
 
