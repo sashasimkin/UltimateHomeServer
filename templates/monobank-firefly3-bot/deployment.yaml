@@ -1,7 +1,17 @@
 {{- if .Values.services.monobankFirefly3Bot.enabled }}
 {{- $bot := .Values.services.monobankFirefly3Bot }}
 {{- $_ := required "services.monobankFirefly3Bot.existingSecret must name an externally created Secret when the service is enabled" $bot.existingSecret }}
-{{- $_ := required "services.monobankFirefly3Bot.webhookDomain is required when the service is enabled" $bot.webhookDomain }}
+{{- $webhookDomain := $bot.webhookDomain | default "" }}
+{{- $webhookDomainSecretRef := $bot.webhookDomainSecretRef | default dict }}
+{{- $webhookSecretName := $webhookDomainSecretRef.name | default "" }}
+{{- $webhookSecretKey := $webhookDomainSecretRef.key | default "" }}
+{{- if and (ne $webhookDomain "") (or (ne $webhookSecretName "") (ne $webhookSecretKey "")) }}
+{{- fail "set only one of services.monobankFirefly3Bot.webhookDomain or webhookDomainSecretRef" }}
+{{- end }}
+{{- if eq $webhookDomain "" }}
+{{- $_ := required "services.monobankFirefly3Bot.webhookDomain or webhookDomainSecretRef is required when the service is enabled" $webhookSecretName }}
+{{- $_ := required "services.monobankFirefly3Bot.webhookDomainSecretRef.key is required when the service is enabled" $webhookSecretKey }}
+{{- end }}
 {{- $_ := required "services.monobankFirefly3Bot.fireflyApiUrl is required when the service is enabled" $bot.fireflyApiUrl }}
 apiVersion: apps/v1
 kind: Deployment
@@ -24,6 +34,9 @@ spec:
         app.kubernetes.io/name: monobank-firefly3-bot
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/monobank-firefly3-bot/configmap.yaml") . | sha256sum }}
+      {{- with $bot.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       containers:
         - name: monobank-firefly3-bot
@@ -37,7 +50,14 @@ spec:
             - name: TIMEZONE_HOURS_DIFF
               value: {{ $bot.timezoneHoursDiff | quote }}
             - name: MONOBANK_WEBHOOK_DOMAIN
-              value: {{ $bot.webhookDomain | quote }}
+              {{- if ne $webhookDomain "" }}
+              value: {{ $webhookDomain | quote }}
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $webhookSecretName | quote }}
+                  key: {{ $webhookSecretKey | quote }}
+              {{- end }}
             - name: FIREFLY3_API_URL
               value: {{ $bot.fireflyApiUrl | quote }}
           envFrom:
