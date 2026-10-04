@@ -275,6 +275,9 @@ services:
         timezoneHoursDiff: 0
         fireflyApiUrl: "http://firefly.home-media.svc.cluster.local:8080/api"
         webhookDomain: ""
+        webhookDomainSecretRef: {}
+        # Set either webhookDomain or webhookDomainSecretRef (name/key).
+        podAnnotations: {}
         # Create this Secret out of band. It must contain FIREFLY3_TOKEN,
         # MONOBANK_TOKEN, and MONOBANK_WEBHOOK_SECRET.
         existingSecret: ""
