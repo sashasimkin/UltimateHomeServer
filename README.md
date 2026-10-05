@@ -61,6 +61,25 @@ Here are some useful resources to get you started:
 ### Finance
 - 🏦 [`monobank-firefly3-bot`](https://github.com/sashasimkin/monobank-firefly3-bot): Import Monobank transactions into Firefly III through a webhook.
 
+#### Home Assistant host devices
+
+`services.homeassistant.usbDevices` accepts a host path string for existing
+configurations, or an object with `path` and optional Kubernetes
+`hostPath.type` fields. Use `type: CharDevice` for serial radios so Kubernetes
+checks that the host path resolves to a character device instead of mounting a
+directory if the device path is missing. A by-id path keeps the configuration
+stable across changes to `/dev/ttyUSB*` enumeration.
+
+```yaml
+services:
+  homeassistant:
+    usbDevices:
+      skyconnect:
+        path: /dev/serial/by-id/usb-device-id
+        type: CharDevice
+      dbus: /run/dbus
+```
+
 #### Apprise persistence and credentials
 
 Apprise uses `/config` for its persistent API configuration. Deployments can

@@ -43,8 +43,12 @@ spec:
               subPath: "{{ .Values.services.homeassistant.config }}"
             {{- with .Values.services.homeassistant.usbDevices }}
             {{- range $key, $value := . }}
+            {{- $mountPath := $value }}
+            {{- if kindIs "map" $value }}
+            {{- $mountPath = required (printf "services.homeassistant.usbDevices.%s.path is required" $key) $value.path }}
+            {{- end }}
             - name: {{ $key }}
-              mountPath: {{ $value | quote }}
+              mountPath: {{ $mountPath | quote }}
             {{- end }}
             {{- end }}
       volumes:
@@ -53,9 +57,16 @@ spec:
             claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.homeassistant }}
         {{- with .Values.services.homeassistant.usbDevices }}
         {{- range $key, $value := . }}
+        {{- $devicePath := $value }}
+        {{- if kindIs "map" $value }}
+        {{- $devicePath = required (printf "services.homeassistant.usbDevices.%s.path is required" $key) $value.path }}
+        {{- end }}
         - name: {{ $key }}
           hostPath:
-            path: {{ $value | quote }}
+            path: {{ $devicePath | quote }}
+            {{- if and (kindIs "map" $value) $value.type }}
+            type: {{ $value.type }}
+            {{- end }}
         {{- end }}
         {{- end }}
       {{- if .Values.services.homeassistant.hostNetwork }}
