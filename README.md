@@ -61,6 +61,24 @@ Here are some useful resources to get you started:
 ### Finance
 - 🏦 [`monobank-firefly3-bot`](https://github.com/sashasimkin/monobank-firefly3-bot): Import Monobank transactions into Firefly III through a webhook.
 
+#### Home Assistant USB passthrough
+
+Set `services.homeassistant.usbPassthrough: true` to mount the node's `/dev`
+directory into Home Assistant at `/dev`. This exposes all host device nodes,
+not only USB devices, and lets udev-created USB nodes and by-id links appear in
+the container while Home Assistant is running. With this flag enabled, any
+`usbDevices` entry targeting `/dev` is skipped so a per-device mount cannot
+mask the live device tree. Other entries such as `/run/dbus` remain mounted.
+The flag is opt-in and defaults to false.
+
+```yaml
+services:
+  homeassistant:
+    usbPassthrough: true
+    usbDevices:
+      dbus: /run/dbus
+```
+
 #### Apprise persistence and credentials
 
 Apprise uses `/config` for its persistent API configuration. Deployments can

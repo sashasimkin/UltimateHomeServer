@@ -148,10 +148,10 @@ services:
             http: 8123
         config: homeassistant/config
         hostNetwork: false
+        usbPassthrough: true
         # USB on OrangePI 5
         privileged: true
         usbDevices:
-            skyconnect: /dev/ttyUSB0
             dbus: /run/dbus
         capabilities:
             - NET_ADMIN

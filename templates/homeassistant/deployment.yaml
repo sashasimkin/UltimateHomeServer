@@ -41,21 +41,35 @@ spec:
             - name: homeassistant-data
               mountPath: /config
               subPath: "{{ .Values.services.homeassistant.config }}"
+            {{- if .Values.services.homeassistant.usbPassthrough }}
+            - name: host-dev
+              mountPath: /dev
+            {{- end }}
             {{- with .Values.services.homeassistant.usbDevices }}
             {{- range $key, $value := . }}
+            {{- if not (and $.Values.services.homeassistant.usbPassthrough (or (eq $value "/dev") (hasPrefix "/dev/" $value))) }}
             - name: {{ $key }}
               mountPath: {{ $value | quote }}
+            {{- end }}
             {{- end }}
             {{- end }}
       volumes:
         - name: homeassistant-data
           persistentVolumeClaim:
             claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.homeassistant }}
+        {{- if .Values.services.homeassistant.usbPassthrough }}
+        - name: host-dev
+          hostPath:
+            path: /dev
+            type: Directory
+        {{- end }}
         {{- with .Values.services.homeassistant.usbDevices }}
         {{- range $key, $value := . }}
+        {{- if not (and $.Values.services.homeassistant.usbPassthrough (or (eq $value "/dev") (hasPrefix "/dev/" $value))) }}
         - name: {{ $key }}
           hostPath:
             path: {{ $value | quote }}
+        {{- end }}
         {{- end }}
         {{- end }}
       {{- if .Values.services.homeassistant.hostNetwork }}
