@@ -148,12 +148,10 @@ services:
             http: 8123
         config: homeassistant/config
         hostNetwork: false
+        usbPassthrough: true
         # USB on OrangePI 5
         privileged: true
         usbDevices:
-            skyconnect:
-                path: /dev/serial/by-id/usb-Nabu_Casa_SkyConnect_v1.0_40f21615d091ed11bec4cad13b20a988-if00-port0
-                type: CharDevice
             dbus: /run/dbus
         capabilities:
             - NET_ADMIN

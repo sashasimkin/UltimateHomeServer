@@ -41,32 +41,35 @@ spec:
             - name: homeassistant-data
               mountPath: /config
               subPath: "{{ .Values.services.homeassistant.config }}"
+            {{- if .Values.services.homeassistant.usbPassthrough }}
+            - name: host-dev
+              mountPath: /dev
+            {{- end }}
             {{- with .Values.services.homeassistant.usbDevices }}
             {{- range $key, $value := . }}
-            {{- $mountPath := $value }}
-            {{- if kindIs "map" $value }}
-            {{- $mountPath = required (printf "services.homeassistant.usbDevices.%s.path is required" $key) $value.path }}
-            {{- end }}
+            {{- if not (and $.Values.services.homeassistant.usbPassthrough (or (eq $value "/dev") (hasPrefix "/dev/" $value))) }}
             - name: {{ $key }}
-              mountPath: {{ $mountPath | quote }}
+              mountPath: {{ $value | quote }}
+            {{- end }}
             {{- end }}
             {{- end }}
       volumes:
         - name: homeassistant-data
           persistentVolumeClaim:
             claimName: {{ include "ultimatehomeserver.persistence.claimName" .Values.services.homeassistant }}
+        {{- if .Values.services.homeassistant.usbPassthrough }}
+        - name: host-dev
+          hostPath:
+            path: /dev
+            type: Directory
+        {{- end }}
         {{- with .Values.services.homeassistant.usbDevices }}
         {{- range $key, $value := . }}
-        {{- $devicePath := $value }}
-        {{- if kindIs "map" $value }}
-        {{- $devicePath = required (printf "services.homeassistant.usbDevices.%s.path is required" $key) $value.path }}
-        {{- end }}
+        {{- if not (and $.Values.services.homeassistant.usbPassthrough (or (eq $value "/dev") (hasPrefix "/dev/" $value))) }}
         - name: {{ $key }}
           hostPath:
-            path: {{ $devicePath | quote }}
-            {{- if and (kindIs "map" $value) $value.type }}
-            type: {{ $value.type }}
-            {{- end }}
+            path: {{ $value | quote }}
+        {{- end }}
         {{- end }}
         {{- end }}
       {{- if .Values.services.homeassistant.hostNetwork }}

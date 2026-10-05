@@ -61,22 +61,21 @@ Here are some useful resources to get you started:
 ### Finance
 - 🏦 [`monobank-firefly3-bot`](https://github.com/sashasimkin/monobank-firefly3-bot): Import Monobank transactions into Firefly III through a webhook.
 
-#### Home Assistant host devices
+#### Home Assistant USB passthrough
 
-`services.homeassistant.usbDevices` accepts a host path string for existing
-configurations, or an object with `path` and optional Kubernetes
-`hostPath.type` fields. Use `type: CharDevice` for serial radios so Kubernetes
-checks that the host path resolves to a character device instead of mounting a
-directory if the device path is missing. A by-id path keeps the configuration
-stable across changes to `/dev/ttyUSB*` enumeration.
+Set `services.homeassistant.usbPassthrough: true` to mount the node's `/dev`
+directory into Home Assistant at `/dev`. This exposes all host device nodes,
+not only USB devices, and lets udev-created USB nodes and by-id links appear in
+the container while Home Assistant is running. With this flag enabled, any
+`usbDevices` entry targeting `/dev` is skipped so a per-device mount cannot
+mask the live device tree. Other entries such as `/run/dbus` remain mounted.
+The flag is opt-in and defaults to false.
 
 ```yaml
 services:
   homeassistant:
+    usbPassthrough: true
     usbDevices:
-      skyconnect:
-        path: /dev/serial/by-id/usb-device-id
-        type: CharDevice
       dbus: /run/dbus
 ```
 
