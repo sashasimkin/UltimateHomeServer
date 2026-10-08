@@ -8,6 +8,7 @@ RUN git init && git remote add origin https://github.com/seydx/tuya-ipc-terminal
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/tuya-ipc-terminal .
 
 FROM alpine:3.22
+LABEL org.opencontainers.image.source="https://github.com/sashasimkin/UltimateHomeServer"
 RUN addgroup -S -g 10001 app && adduser -S -D -H -u 10001 -G app app \
     && mkdir -p /data && chown 10001:10001 /data
 COPY --from=build /out/tuya-ipc-terminal /usr/local/bin/tuya-ipc-terminal
