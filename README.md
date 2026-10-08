@@ -159,3 +159,15 @@ View the [`uhs-cli` repository](https://github.com/TechSquidTV/uhs-cli) for more
 <p align="center">
   Made with ❤️, built on the backs of <a href="https://wiki.servarr.com/">*arr stack</a>, <a href="https://www.linuxserver.io/"> linuxserver.io</a>, and more awesome open-source projects.
 </p>
+
+### Tuya IPC terminal image
+
+The reproducible multi-architecture image build for the upstream
+[`tuya-ipc-terminal`](https://github.com/seydx/tuya-ipc-terminal) binary lives
+in [`images/tuya-ipc-terminal`](images/tuya-ipc-terminal) and is published by
+`.github/workflows/tuya-ipc-image.yml`. The Docker build pins the upstream source
+commit; update that pin and the image tag together when upgrading.
+GitHub Container Registry creates newly published user-scoped packages as
+private by default. After the first successful workflow run, explicitly change
+the `tuya-ipc-terminal` package visibility to public before relying on anonymous
+cluster pulls.
