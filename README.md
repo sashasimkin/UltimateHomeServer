@@ -194,7 +194,7 @@ MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
 WebRTC, HLS, RTMP, and SRT endpoints are disabled. Deploy the Tuya IPC bridge
 separately with the public `ghcr.io/sashasimkin/tuya-ipc-terminal` image. The
 image is built for `linux/amd64` and `linux/arm64`. Pull requests run a
-non-publishing build; pushes to a feature branch publish `branch-<branch>` and
-immutable `sha-<commit>` tags to the package owned by that repository. Push a
-prerelease tag such as `v0.1.0-rc.1` to build a prerelease image before merging.
-Main-branch builds publish the pinned upstream version tag.
+non-publishing build; pushes to a feature branch publish a `prerelease` alias
+and immutable `sha-<commit>` tags to the package owned by that repository.
+Push a prerelease tag such as `v0.1.0-rc.1` to build a versioned image before
+merging. Main-branch builds publish the pinned upstream version tag.
