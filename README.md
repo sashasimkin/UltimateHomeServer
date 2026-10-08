@@ -36,6 +36,7 @@ Here are some useful resources to get you started:
 - 🏠 [`homepage`](https://gethomepage.dev/): A customizable start page for your home server.
 ### Media
 - 🪼 [`jellyfin`](https://jellyfin.org/): The free software media system. (Recommended)
+- 📹 [`mediamtx`](https://github.com/bluenviron/mediamtx): Optional RTSP server/proxy for publishing camera streams.
 - 📺 [`plex`](https://www.plex.tv/): A personal media server. (Not advised, Plex was not designed to container environments like this)
 - 📖 [`kavita`](https://www.kavitareader.com/): A modern reading server for manga, comics, and books.
 ### Media Management
@@ -171,3 +172,29 @@ GitHub Container Registry creates newly published user-scoped packages as
 private by default. After the first successful workflow run, explicitly change
 the `tuya-ipc-terminal` package visibility to public before relying on anonymous
 cluster pulls.
+
+#### Tuya IPC camera streams
+
+The `services.mediamtx` service is an opt-in RTSP server for camera streams.
+Set `services.mediamtx.enabled: true` and add one entry per stream under
+`services.mediamtx.paths`. For example, a path can proxy an RTSP source from a
+Tuya IPC bridge running in the same namespace:
+
+```yaml
+services:
+  mediamtx:
+    enabled: true
+    paths:
+      front-door:
+        source: rtsp://tuya-ipc-terminal.home-media.svc.cluster.local:8554/CameraName/hd
+        rtspTransport: tcp
+```
+
+MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
+WebRTC, HLS, RTMP, and SRT endpoints are disabled. Deploy the Tuya IPC bridge
+separately with the public `ghcr.io/sashasimkin/tuya-ipc-terminal` image. The
+image is built for `linux/amd64` and `linux/arm64`. Pull requests run a
+non-publishing build; pushes to a feature branch publish `branch-<branch>` and
+immutable `sha-<commit>` tags to the package owned by that repository. Push a
+prerelease tag such as `v0.1.0-rc.1` to build a prerelease image before merging.
+Main-branch builds publish the pinned upstream version tag.

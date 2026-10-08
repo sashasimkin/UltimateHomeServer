@@ -1,0 +1,26 @@
+{{- if .Values.services.mediamtx.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mediamtx
+  namespace: {{ .Values.common.namespace }}
+data:
+  mediamtx.yml: |
+    logLevel: info
+    api: false
+    metrics: false
+    pprof: false
+    rtsp: true
+    rtspAddress: :{{ .Values.services.mediamtx.ports.rtsp }}
+    rtspTransports: [tcp]
+    rtmp: false
+    hls: false
+    webrtc: false
+    srt: false
+    paths:
+    {{- if .Values.services.mediamtx.paths }}
+    {{- toYaml .Values.services.mediamtx.paths | nindent 6 }}
+    {{- else }}
+      {}
+    {{- end }}
+{{- end }}
