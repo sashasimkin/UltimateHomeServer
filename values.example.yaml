@@ -262,6 +262,25 @@ services:
                 successfulJobsHistoryLimit: 3
                 failedJobsHistoryLimit: 1
 
+    mediamtx:
+        enabled: false
+        replicaCount: 1
+        image:
+            repository: bluenviron/mediamtx
+            tag: 1.21.1
+            pullPolicy: IfNotPresent
+        ports:
+            rtsp: 8554
+        paths: {}
+        resources:
+            requests:
+                cpu: 25m
+                memory: 32Mi
+            limits:
+                memory: 256Mi
+        nodeSelector: {}
+        affinity: {}
+        tolerations: []
     monobankFirefly3Bot:
         enabled: false
         replicaCount: 1
