@@ -262,6 +262,27 @@ services:
                 successfulJobsHistoryLimit: 3
                 failedJobsHistoryLimit: 1
 
+    tuyaIpc:
+        enabled: false
+        image:
+            repository: ghcr.io/sashasimkin/tuya-ipc-terminal
+            tag: sha-f94c1bfc980f43949ac0d75f3be2cff3a9f3ee66
+            pullPolicy: IfNotPresent
+        storage:
+            size: 1Gi
+            storageClassName: ""
+        ports:
+            rtsp: 8554
+        resources:
+            requests:
+                cpu: 100m
+                memory: 128Mi
+            limits:
+                memory: 512Mi
+        nodeSelector: {}
+        affinity: {}
+        tolerations: []
+
     mediamtx:
         enabled: false
         replicaCount: 1
