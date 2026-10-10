@@ -1,0 +1,16 @@
+{{- if .Values.services.tuyaIpc.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tuya-ipc-data
+  namespace: {{ .Values.common.namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{ if .Values.services.tuyaIpc.storage.storageClassName }}
+  storageClassName: {{ .Values.services.tuyaIpc.storage.storageClassName | quote }}
+  {{ end }}
+  resources:
+    requests:
+      storage: {{ .Values.services.tuyaIpc.storage.size | quote }}
+{{- end }}
