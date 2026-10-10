@@ -1,0 +1,18 @@
+{{- if .Values.services.tuyaIpc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: tuya-ipc-terminal
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: tuya-ipc-terminal
+spec:
+  type: ClusterIP
+  ports:
+    - name: rtsp
+      port: {{ .Values.services.tuyaIpc.ports.rtsp }}
+      targetPort: rtsp
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: tuya-ipc-terminal
+{{- end }}
