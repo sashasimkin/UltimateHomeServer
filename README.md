@@ -191,7 +191,10 @@ services:
 ```
 
 MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
-WebRTC, HLS, RTMP, and SRT endpoints are disabled. Deploy the Tuya IPC bridge
+WebRTC, HLS, RTMP, and SRT endpoints are disabled. Its ConfigMap is mounted as a directory (not with `subPath`), so Kubernetes
+projected-volume updates are detected by MediaMTX's configuration watcher and
+reloaded without restarting the Pod; propagation follows the kubelet's normal
+ConfigMap update interval. Deploy the Tuya IPC bridge
 separately with the public `ghcr.io/sashasimkin/tuya-ipc-terminal` image. The
 image is built for `linux/amd64` and `linux/arm64`. Pull requests run a
 non-publishing build; pushes to a feature branch publish a `prerelease` alias
