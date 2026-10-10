@@ -17,8 +17,6 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: mediamtx
-      annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/mediamtx/configmap.yaml") . | sha256sum }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -29,7 +27,7 @@ spec:
         - name: mediamtx
           image: "{{ $mediamtx.image.repository }}:{{ $mediamtx.image.tag }}"
           imagePullPolicy: {{ $mediamtx.image.pullPolicy }}
-          args: ["/mediamtx.yml"]
+          args: ["/config/mediamtx.yml"]
           ports:
             - name: rtsp
               containerPort: {{ $mediamtx.ports.rtsp }}
@@ -51,8 +49,7 @@ spec:
             readOnlyRootFilesystem: true
           volumeMounts:
             - name: config
-              mountPath: /mediamtx.yml
-              subPath: mediamtx.yml
+              mountPath: /config
               readOnly: true
           {{- with $mediamtx.resources }}
           resources:
