@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+namespace=${TUYA_NAMESPACE:-default}
+workload=${TUYA_WORKLOAD:-deployment/tuya-ipc-terminal}
+container=${TUYA_CONTAINER:-tuya-ipc-terminal}
+
+kubectl_arguments=(
+    -n "${namespace}"
+    exec
+    -i
+)
+
+if [[ -t 0 && -t 1 ]]; then
+    kubectl_arguments+=(-t)
+fi
+
+kubectl_arguments+=(
+    "${workload}"
+    -c "${container}"
+    --
+    sh
+    -c
+    'cd /data && exec tuya-ipc-terminal "$@"'
+    tuya-ipc-terminal
+    "$@"
+)
+
+exec kubectl "${kubectl_arguments[@]}"
