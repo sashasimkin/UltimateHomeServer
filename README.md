@@ -111,12 +111,47 @@ Firefly Service uses a different namespace or port. Set exactly one of
 in your deployment values, plus non-secret `config` rules. The referenced
 Secret must exist in the application namespace. `podAnnotations` can attach
 caller-specific annotations, such as a Secret reloader trigger. Create the
-referenced Kubernetes Secret separately with `FIREFLY3_TOKEN`,
-`MONOBANK_TOKEN`, and `MONOBANK_WEBHOOK_SECRET`; the chart does not create or
-store these credentials. The bot listens on port 8080 and exposes `/health` for
+referenced Kubernetes Secret separately with `FIREFLY3_TOKEN` and
+`MONOBANK_TOKEN`. By default it also supplies `MONOBANK_WEBHOOK_SECRET`.
+The bot listens on port 8080 and exposes `/health` for
 probes. For a Cloudflare Tunnel, add a `services.cloudflared.additionalIngress`
 entry routing the webhook hostname to
 `http://monobank-firefly3-bot.<namespace>.svc.cluster.local:8080`.
+
+To generate the webhook key inside Kubernetes, enable `managedWebhookSecret`:
+
+```yaml
+services:
+  monobankFirefly3Bot:
+    managedWebhookSecret:
+      enabled: true
+      namePrefix: monobank-firefly3-bot-webhook
+      version: v1
+```
+
+This requires an installed External Secrets Operator supporting ExternalSecret
+`v1`, the Password generator, `CreatedOnce`, and immutable targets. The chart
+creates a Password generator and ExternalSecret only while the webhook service
+is enabled. ESO creates a separate immutable Secret named `<namePrefix>-<version>`
+containing a 64-character alphanumeric key. No external vault or SecretStore is
+used. Explicit container env overrides any legacy webhook key in `existingSecret`;
+the poller and importer continue using only `existingSecret`.
+
+Rotate by committing a new, unused `version`. The changed Secret reference
+restarts the webhook Deployment; the pod waits for ESO to create the new key.
+The bot must register its URL on startup, serve Monobank's GET validation, and
+avoid logging the secret URL. Regular sync does not rotate the key; immutable
+targets also preserve it if the ExternalSecret is recreated. Deleting the target
+Secret regenerates its key and requires a pod restart. Do not use deletion for
+routine rotation.
+
+`creationPolicy: Orphan` retains old Secrets after old ExternalSecrets are pruned.
+Keep the previous version for rollback until registration and event delivery
+are confirmed, then remove the old Password/ExternalSecret and Secret explicitly
+if the GitOps controller does not prune. Rolling back reuses that retained key
+and re-registers the previous URL. Losing the Kubernetes Secret requires a new
+key and registration; there is no vault copy to restore. Stop bootstrap helpers
+from writing the legacy webhook field after adopting the managed Secret.
 
 The separate `services.monobankFirefly3Bot.cronSync` option polls the mapped
 Monobank accounts using statement APIs, so it can run while the webhook server

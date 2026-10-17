@@ -318,9 +318,16 @@ services:
         webhookDomainSecretRef: {}
         # Set either webhookDomain or webhookDomainSecretRef (name/key).
         podAnnotations: {}
-        # Create this Secret out of band. It must contain FIREFLY3_TOKEN,
-        # MONOBANK_TOKEN, and MONOBANK_WEBHOOK_SECRET.
+        # Create this Secret out of band with FIREFLY3_TOKEN and MONOBANK_TOKEN.
+        # Include MONOBANK_WEBHOOK_SECRET too unless managedWebhookSecret is enabled.
         existingSecret: ""
+        # Requires ESO with ExternalSecret v1 and the Password generator CRD.
+        # Only creates resources while the webhook service is enabled.
+        managedWebhookSecret:
+            enabled: false
+            namePrefix: monobank-firefly3-bot-webhook
+            # Change to a NEW version to generate a key and restart the server.
+            version: v1
         # Non-secret routing rules. Keep account IDs and matching rules in your
         # private values file; never put API tokens in chart values.
         config:

@@ -1,5 +1,9 @@
 {{- if .Values.services.monobankFirefly3Bot.enabled }}
 {{- $bot := .Values.services.monobankFirefly3Bot }}
+{{- $managed := $bot.managedWebhookSecret | default dict }}
+{{- if and $managed.enabled (ne (int $bot.replicaCount) 1) }}
+{{- fail "managedWebhookSecret requires replicaCount: 1 because startup registers one URL per Monobank account" }}
+{{- end }}
 {{- $_ := required "services.monobankFirefly3Bot.existingSecret must name an externally created Secret when the service is enabled" $bot.existingSecret }}
 {{- $webhookDomain := $bot.webhookDomain | default "" }}
 {{- $webhookDomainSecretRef := $bot.webhookDomainSecretRef | default dict }}
@@ -60,6 +64,14 @@ spec:
               {{- end }}
             - name: FIREFLY3_API_URL
               value: {{ $bot.fireflyApiUrl | quote }}
+            {{- if $managed.enabled }}
+            # Explicit env takes precedence over a legacy key in envFrom.
+            - name: MONOBANK_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ultimatehomeserver.monobank.webhookSecretName" $bot | quote }}
+                  key: MONOBANK_WEBHOOK_SECRET
+            {{- end }}
           envFrom:
             - secretRef:
                 name: {{ $bot.existingSecret }}
