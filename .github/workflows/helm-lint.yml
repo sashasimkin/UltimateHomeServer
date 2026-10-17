@@ -9,20 +9,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: azure/setup-helm@v3
-      - uses: actions/setup-go@v4
         with:
-          go-version: 'stable'
-          cache: false
-      - name: Clone UHS CLI
-        run: |
-          git clone https://github.com/TechSquidTV/uhs-cli.git /tmp/uhs-cli
-      - name: Install UHS CLI
-        run: |
-          cd /tmp/uhs-cli
-          go install
-      - name: Generate default values.yaml
-        run: |
-          uhs-cli default -o values.yaml
+          version: v3.22.1
       - name: Verify Helm Templates
         run: |
-          helm template --values values.yaml .
+          helm template --values values.example.yaml .
