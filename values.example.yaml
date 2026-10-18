@@ -321,7 +321,8 @@ services:
         # Create this Secret out of band with FIREFLY3_TOKEN and MONOBANK_TOKEN.
         # Include MONOBANK_WEBHOOK_SECRET too unless managedWebhookSecret is enabled.
         existingSecret: ""
-        # Helm creates and retains a versioned immutable Secret as a hook.
+        # Helm generates a versioned immutable Secret; lookup reuses its key.
+        # For disconnected GitOps renderers, configure data ignores (see README).
         # Only creates resources while the webhook service is enabled.
         managedWebhookSecret:
             enabled: false

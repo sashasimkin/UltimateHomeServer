@@ -130,18 +130,35 @@ services:
 ```
 
 Helm generates a 64-character alphanumeric key in immutable Secret
-`<namePrefix>-<version>` only while the webhook service is enabled. The Secret
-is a named `pre-install,pre-upgrade` hook with `resource-policy: keep` and an
-explicit `hook-failed` deletion policy. Do not change this to
-`before-hook-creation` or `hook-succeeded`: either would discard the key.
+`<namePrefix>-<version>` only while the webhook service is enabled. Connected
+installs/upgrades use `lookup` to reuse the stored key and fail if its expected
+field is missing. Retention annotations keep old versions through Helm removal
+and Argo CD pruning/deletion, without reporting retained versions as drift.
 
-Connected Helm installs/upgrades use `lookup` to skip an existing Secret, failing
-if its expected key is missing. Disconnected `helm template` cannot read that
-value: it renders a new candidate, not the stored key. In Argo CD the existing
-named hook is retained without reapplication; a new candidate does not replace
-it or create persistent data drift. Do not apply rendered hooks as ordinary
-resources with `kubectl apply`, or configure Argo CD to recreate them. Rendered
-managed-key manifests contain credentials and must not be published.
+Disconnected `helm template` cannot read the stored key and renders a new
+candidate. For Argo CD, configure the following on the consuming Application
+before enabling managed keys. Both the narrow data ignore and
+`RespectIgnoreDifferences` are required: comparison ignores alone do not protect
+a Secret during sync.
+
+```yaml
+spec:
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      jqPathExpressions:
+        - 'select(.metadata.labels["app.kubernetes.io/component"] == "monobank-webhook-key") | .data'
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+```
+
+The first sync creates the key; later syncs preserve the existing data and do
+not report random data drift. Other Secret data remains managed normally.
+Other disconnected deployment tools need equivalent preservation behavior;
+plain `kubectl apply` of a newly rendered candidate is unsupported and is
+rejected by immutability. Rendered managed-key manifests contain credentials
+and must not be published.
 
 Rotate by committing a new, unused `version`. The new name creates a new Secret
 and changes the Deployment reference, restarting the server for URL registration.
@@ -151,10 +168,9 @@ API tokens still come from that Secret. Polling alone creates no managed key.
 
 Retain the previous Secret until registration and event delivery are confirmed.
 Rolling back the version reuses that key and re-registers the previous URL;
-then obsolete Secrets can be deleted explicitly. Hook Secrets survive release
-removal. Losing the current Secret requires regeneration and a pod restart to
-register the new URL. Bootstrap helpers must stop writing the legacy field
-when adopting the managed Secret.
+then obsolete Secrets can be deleted explicitly. Losing the current Secret
+requires regeneration and a pod restart to register the new URL. Bootstrap
+helpers must stop writing the legacy field when adopting the managed Secret.
 
 The separate `services.monobankFirefly3Bot.cronSync` option polls the mapped
 Monobank accounts using statement APIs, so it can run while the webhook server
