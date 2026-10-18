@@ -104,37 +104,46 @@ Unpackerr process.
 
 #### Monobank to Firefly III webhook
 
-The `monobankFirefly3Bot` service is opt-in. Its `fireflyApiUrl` defaults to
-the in-cluster Firefly Service URL in namespace `home-media`; change it if your
-Firefly Service uses a different namespace or port. Set exactly one of
-`webhookDomain` (literal hostname) or `webhookDomainSecretRef` (`name` and `key`)
-in your deployment values, plus non-secret `config` rules. The referenced
-Secret must exist in the application namespace. `podAnnotations` can attach
-caller-specific annotations, such as a Secret reloader trigger. Create the
-referenced Kubernetes Secret separately with `FIREFLY3_TOKEN`,
-`MONOBANK_TOKEN`, and `MONOBANK_WEBHOOK_SECRET`; the chart does not create or
-store these credentials. The bot listens on port 8080 and exposes `/health` for
-probes. For a Cloudflare Tunnel, add a `services.cloudflared.additionalIngress`
-entry routing the webhook hostname to
+Set `services.monobankFirefly3Bot.enabled`, account/routing `config`, and either
+`webhookDomain` or `webhookDomainSecretRef` (`name`/`key`). `existingSecret` must
+contain `FIREFLY3_TOKEN` and `MONOBANK_TOKEN`. Set `fireflyApiUrl` for your Firefly
+Service. The server uses one replica, port 8080, and `/health` probes.
+
+Helm generates the webhook key in immutable Secret `<namePrefix>-<version>`
+from `managedWebhookSecret`. `lookup` reuses its key during connected upgrades.
+Change `version` to rotate and restart the server for URL registration. Retain
+the previous Secret for rollback; delete obsolete versions explicitly.
+
+Offline rendering produces a new candidate. Argo CD Applications need both
+settings below to preserve stored data during comparison and sync:
+
+```yaml
+spec:
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      jqPathExpressions:
+        - 'select(.metadata.labels["app.kubernetes.io/component"] == "monobank-webhook-key") | .data'
+  syncPolicy:
+    syncOptions:
+      - RespectIgnoreDifferences=true
+```
+
+Do not publish rendered Secret manifests. Retention annotations preserve Secrets
+through Helm removal and Argo pruning/deletion.
+
+For Cloudflare Tunnel, route the webhook hostname through
+`services.cloudflared.additionalIngress` to
 `http://monobank-firefly3-bot.<namespace>.svc.cluster.local:8080`.
 
-The separate `services.monobankFirefly3Bot.cronSync` option polls the mapped
-Monobank accounts using statement APIs, so it can run while the webhook server
-is disabled. Its checkpoint is stored on a chart-managed PVC; configure a
-storage class if the cluster has no default. `config.import_unmatched_transactions`
-can import unmatched new operations under an `Uncategorized` category until
-merchant/MCC rules are ready. The poller overlaps its saved cursor to catch
-late statements and deduplicates through Firefly transaction external IDs.
-Monobank limits statement requests to one per minute, so a run for several
-accounts lasts a few minutes even when the schedule is hourly.
-On the first run, the job only records the starting cursor for each account;
-it leaves prior transactions untouched. Subsequent runs import new operations.
+`cronSync.enabled` runs statement polling independently of the webhook, with
+PVC-backed cursors and an overlap window for deduplication. Its first run records
+starting cursors without importing history. Monobank limits statement requests
+to one per minute; polling several accounts takes a few minutes.
 
-`historicalImport` creates a one-off Job when enabled. It requires a start date,
-a unique `runId`, and configured transaction rules; leave it disabled until the
-MCC and refund rules have been reviewed. Change `runId` for each intentional
-backfill. A history import may take time because it is chunked to comply with
-Monobank's statement-window and rate limits.
+For backfills, enable `historicalImport` with `from`, configured transaction
+rules, and a new `runId` per run. It leaves incremental polling cursors unchanged.
+
 ### Automation
 - 🦅 [`huginn`](https://github.com/huginn/huginn): Create agents that monitor and act on your behalf.
 - 🔄 [`changedetection.io`](https://changedetection.io): Monitor web pages for changes.

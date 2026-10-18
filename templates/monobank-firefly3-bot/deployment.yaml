@@ -1,5 +1,8 @@
 {{- if .Values.services.monobankFirefly3Bot.enabled }}
 {{- $bot := .Values.services.monobankFirefly3Bot }}
+{{- if ne (int $bot.replicaCount) 1 }}
+{{- fail "monobankFirefly3Bot requires replicaCount: 1 because startup registers one URL per Monobank account" }}
+{{- end }}
 {{- $_ := required "services.monobankFirefly3Bot.existingSecret must name an externally created Secret when the service is enabled" $bot.existingSecret }}
 {{- $webhookDomain := $bot.webhookDomain | default "" }}
 {{- $webhookDomainSecretRef := $bot.webhookDomainSecretRef | default dict }}
@@ -60,6 +63,11 @@ spec:
               {{- end }}
             - name: FIREFLY3_API_URL
               value: {{ $bot.fireflyApiUrl | quote }}
+            - name: MONOBANK_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "ultimatehomeserver.monobank.webhookSecretName" $bot | quote }}
+                  key: MONOBANK_WEBHOOK_SECRET
           envFrom:
             - secretRef:
                 name: {{ $bot.existingSecret }}
