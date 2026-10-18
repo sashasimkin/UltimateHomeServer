@@ -129,29 +129,32 @@ services:
       version: v1
 ```
 
-This requires an installed External Secrets Operator supporting ExternalSecret
-`v1`, the Password generator, `CreatedOnce`, and immutable targets. The chart
-creates a Password generator and ExternalSecret only while the webhook service
-is enabled. ESO creates a separate immutable Secret named `<namePrefix>-<version>`
-containing a 64-character alphanumeric key. No external vault or SecretStore is
-used. Explicit container env overrides any legacy webhook key in `existingSecret`;
-the poller and importer continue using only `existingSecret`.
+Helm generates a 64-character alphanumeric key in immutable Secret
+`<namePrefix>-<version>` only while the webhook service is enabled. The Secret
+is a named `pre-install,pre-upgrade` hook with `resource-policy: keep` and an
+explicit `hook-failed` deletion policy. Do not change this to
+`before-hook-creation` or `hook-succeeded`: either would discard the key.
 
-Rotate by committing a new, unused `version`. The changed Secret reference
-restarts the webhook Deployment; the pod waits for ESO to create the new key.
-The bot must register its URL on startup, serve Monobank's GET validation, and
-avoid logging the secret URL. Regular sync does not rotate the key; immutable
-targets also preserve it if the ExternalSecret is recreated. Deleting the target
-Secret regenerates its key and requires a pod restart. Do not use deletion for
-routine rotation.
+Connected Helm installs/upgrades use `lookup` to skip an existing Secret, failing
+if its expected key is missing. Disconnected `helm template` cannot read that
+value: it renders a new candidate, not the stored key. In Argo CD the existing
+named hook is retained without reapplication; a new candidate does not replace
+it or create persistent data drift. Do not apply rendered hooks as ordinary
+resources with `kubectl apply`, or configure Argo CD to recreate them. Rendered
+managed-key manifests contain credentials and must not be published.
 
-`creationPolicy: Orphan` retains old Secrets after old ExternalSecrets are pruned.
-Keep the previous version for rollback until registration and event delivery
-are confirmed, then remove the old Password/ExternalSecret and Secret explicitly
-if the GitOps controller does not prune. Rolling back reuses that retained key
-and re-registers the previous URL. Losing the Kubernetes Secret requires a new
-key and registration; there is no vault copy to restore. Stop bootstrap helpers
-from writing the legacy webhook field after adopting the managed Secret.
+Rotate by committing a new, unused `version`. The new name creates a new Secret
+and changes the Deployment reference, restarting the server for URL registration.
+The bot must serve Monobank's validation GET during startup and avoid logging
+the URL. Explicit env overrides any legacy webhook key in `existingSecret`;
+API tokens still come from that Secret. Polling alone creates no managed key.
+
+Retain the previous Secret until registration and event delivery are confirmed.
+Rolling back the version reuses that key and re-registers the previous URL;
+then obsolete Secrets can be deleted explicitly. Hook Secrets survive release
+removal. Losing the current Secret requires regeneration and a pod restart to
+register the new URL. Bootstrap helpers must stop writing the legacy field
+when adopting the managed Secret.
 
 The separate `services.monobankFirefly3Bot.cronSync` option polls the mapped
 Monobank accounts using statement APIs, so it can run while the webhook server
