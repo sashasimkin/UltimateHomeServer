@@ -319,15 +319,11 @@ services:
         # Set either webhookDomain or webhookDomainSecretRef (name/key).
         podAnnotations: {}
         # Create this Secret out of band with FIREFLY3_TOKEN and MONOBANK_TOKEN.
-        # Include MONOBANK_WEBHOOK_SECRET too unless managedWebhookSecret is enabled.
         existingSecret: ""
-        # Helm generates a versioned immutable Secret; lookup reuses its key.
-        # For disconnected GitOps renderers, configure data ignores (see README).
-        # Only creates resources while the webhook service is enabled.
+        # Generated when the webhook is enabled. Argo CD setup: see README.
         managedWebhookSecret:
-            enabled: false
             namePrefix: monobank-firefly3-bot-webhook
-            # Change to a NEW version to generate a key and restart the server.
+            # Change version to rotate the key and restart the server.
             version: v1
         # Non-secret routing rules. Keep account IDs and matching rules in your
         # private values file; never put API tokens in chart values.
