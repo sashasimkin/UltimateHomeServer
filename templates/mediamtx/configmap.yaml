@@ -22,8 +22,8 @@ data:
     moqHTTP2Address: :{{ .Values.services.mediamtx.ports.moqHttp2 }}
     moqHTTP3Address: :{{ .Values.services.mediamtx.ports.moqHttp3 }}
     moqQUICAddress: :{{ .Values.services.mediamtx.ports.moqQuic }}
-    moqServerKey: /tmp/moq-tls/auto.key
-    moqServerCert: /tmp/moq-tls/auto.crt
+    moqServerKey: auto.key
+    moqServerCert: auto.crt
     {{- end }}
     paths:
     {{- if .Values.services.mediamtx.paths }}
