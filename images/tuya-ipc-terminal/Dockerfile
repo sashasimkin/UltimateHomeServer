@@ -1,5 +1,5 @@
 FROM golang:1.23.9-alpine AS build
-ARG TUYA_COMMIT=48b33196c8892ac9c4873d4e8fb756378336d1b2
+ARG TUYA_COMMIT=585cbcbea0bed19aab6ec46e9165c9090c11fc27
 RUN apk add --no-cache ca-certificates git
 WORKDIR /src
 RUN git init && git remote add origin https://github.com/sanderio-ops/tuya-ipc-terminal.git \
