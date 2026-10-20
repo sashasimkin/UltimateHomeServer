@@ -192,6 +192,32 @@ services:
         rtspTransport: tcp
 ```
 
+MediaMTX paths are passed through to its configuration, so they can also use
+MediaMTX hooks such as `runOnInit` to publish an FFmpeg-processed stream. Set
+`services.mediamtx.ffmpeg.enabled: true` to use the official `-ffmpeg` image
+variant for the configured MediaMTX version. For example, a video-only restream
+can discard source audio without re-encoding the video:
+
+```yaml
+services:
+  mediamtx:
+    enabled: true
+    ffmpeg:
+      enabled: true
+    paths:
+      baby-monitor:
+        runOnInit: >-
+          ffmpeg -hide_banner -loglevel warning -rtsp_transport tcp
+          -i rtsp://tuya-ipc-terminal.home-media.svc.cluster.local:8554/Baby_Monitor
+          -map 0:v:0 -c:v copy -an -f rtsp
+          rtsp://127.0.0.1:$RTSP_PORT/$MTX_PATH
+        runOnInitRestart: yes
+```
+
+The `-ffmpeg` image adds FFmpeg to the MediaMTX container; MediaMTX itself
+does not transcode tracks. `-c:v copy -an` preserves source video and drops
+audio. To transcode audio instead, map an audio track and set `-c:a aac`.
+
 MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
 WebRTC, HLS, RTMP, and SRT endpoints are disabled. Mount the ConfigMap as a
 directory to enable hot reload.

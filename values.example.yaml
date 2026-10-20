@@ -290,6 +290,8 @@ services:
             repository: bluenviron/mediamtx
             tag: 1.21.1
             pullPolicy: IfNotPresent
+        ffmpeg:
+            enabled: false
         ports:
             rtsp: 8554
         paths: {}

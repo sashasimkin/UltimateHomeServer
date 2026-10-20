@@ -25,7 +25,7 @@ spec:
         runAsGroup: 10001
       containers:
         - name: mediamtx
-          image: "{{ $mediamtx.image.repository }}:{{ $mediamtx.image.tag }}"
+          image: "{{ $mediamtx.image.repository }}:{{ $mediamtx.image.tag }}{{ if (dig "ffmpeg" "enabled" false $mediamtx) }}-ffmpeg{{ end }}"
           imagePullPolicy: {{ $mediamtx.image.pullPolicy }}
           args: ["/config/mediamtx.yml"]
           ports:
