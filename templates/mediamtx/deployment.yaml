@@ -25,6 +25,9 @@ spec:
         runAsNonRoot: true
         runAsUser: 10001
         runAsGroup: 10001
+        {{ if $mediamtx.moq.enabled }}
+        fsGroup: 10001
+        {{ end }}
       containers:
         - name: mediamtx
           image: "{{ $mediamtx.image.repository }}:{{ $mediamtx.image.tag }}{{ if (dig "ffmpeg" "enabled" false $mediamtx) }}-ffmpeg{{ end }}"
@@ -34,6 +37,17 @@ spec:
             - name: rtsp
               containerPort: {{ $mediamtx.ports.rtsp }}
               protocol: TCP
+            {{- if $mediamtx.moq.enabled }}
+            - name: moq-http2
+              containerPort: {{ $mediamtx.ports.moqHttp2 }}
+              protocol: TCP
+            - name: moq-http3
+              containerPort: {{ $mediamtx.ports.moqHttp3 }}
+              protocol: UDP
+            - name: moq-quic
+              containerPort: {{ $mediamtx.ports.moqQuic }}
+              protocol: UDP
+            {{- end }}
           readinessProbe:
             tcpSocket:
               port: rtsp
@@ -53,6 +67,10 @@ spec:
             - name: config
               mountPath: /config
               readOnly: true
+            {{- if $mediamtx.moq.enabled }}
+            - name: moq-tls
+              mountPath: /tmp/moq-tls
+            {{- end }}
           {{- with $mediamtx.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -61,6 +79,10 @@ spec:
         - name: config
           configMap:
             name: mediamtx
+        {{- if $mediamtx.moq.enabled }}
+        - name: moq-tls
+          emptyDir: {}
+        {{- end }}
       {{- with $mediamtx.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -17,7 +17,14 @@ data:
     hls: false
     webrtc: false
     srt: false
-    moq: false
+    moq: {{ .Values.services.mediamtx.moq.enabled }}
+    {{- if .Values.services.mediamtx.moq.enabled }}
+    moqHTTP2Address: :{{ .Values.services.mediamtx.ports.moqHttp2 }}
+    moqHTTP3Address: :{{ .Values.services.mediamtx.ports.moqHttp3 }}
+    moqQUICAddress: :{{ .Values.services.mediamtx.ports.moqQuic }}
+    moqServerKey: /tmp/moq-tls/auto.key
+    moqServerCert: /tmp/moq-tls/auto.crt
+    {{- end }}
     paths:
     {{- if .Values.services.mediamtx.paths }}
     {{- toYaml .Values.services.mediamtx.paths | nindent 6 }}

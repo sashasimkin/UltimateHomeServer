@@ -13,6 +13,20 @@ spec:
       port: {{ .Values.services.mediamtx.ports.rtsp }}
       targetPort: rtsp
       protocol: TCP
+    {{- if .Values.services.mediamtx.moq.enabled }}
+    - name: moq-http2
+      port: {{ .Values.services.mediamtx.ports.moqHttp2 }}
+      targetPort: moq-http2
+      protocol: TCP
+    - name: moq-http3
+      port: {{ .Values.services.mediamtx.ports.moqHttp3 }}
+      targetPort: moq-http3
+      protocol: UDP
+    - name: moq-quic
+      port: {{ .Values.services.mediamtx.ports.moqQuic }}
+      targetPort: moq-quic
+      protocol: UDP
+    {{- end }}
   selector:
     app.kubernetes.io/name: mediamtx
 {{- end }}

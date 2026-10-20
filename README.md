@@ -186,8 +186,11 @@ cluster pulls.
 
 The `services.mediamtx` service is an opt-in RTSP server for camera streams.
 Set `services.mediamtx.enabled: true` and add one entry per stream under
-`services.mediamtx.paths`. For example, a path can proxy an RTSP source from a
-Tuya IPC bridge running in the same namespace:
+`services.mediamtx.paths`. MoQ is disabled by default. Set
+`services.mediamtx.moq.enabled: true` to turn on its HTTP/2 and HTTP/3 listeners
+on port 8892 and native QUIC listener on port 8893. Those ports are then added
+to the internal ClusterIP Service. For example, a path can proxy an RTSP source
+from a Tuya IPC bridge running in the same namespace:
 
 ```yaml
 services:
@@ -195,6 +198,8 @@ services:
     enabled: true
   mediamtx:
     enabled: true
+    moq:
+      enabled: true
     paths:
       front-door:
         source: rtsp://tuya-ipc-terminal.home-media.svc.cluster.local:8554/CameraName/hd
@@ -227,9 +232,10 @@ The `-ffmpeg` image adds FFmpeg to the MediaMTX container; MediaMTX itself
 does not transcode tracks. `-c:v copy -an` preserves source video and drops
 audio. To transcode audio instead, map an audio track and set `-c:a aac`.
 
-MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
-WebRTC, HLS, RTMP, SRT, and MoQ endpoints are disabled. Mount the ConfigMap as
-a directory; changes to it trigger a Deployment rollout.
+MediaMTX exposes its enabled listeners on an internal ClusterIP Service. Its
+API, metrics, WebRTC, HLS, RTMP, and SRT endpoints are disabled. When MoQ is
+enabled, its generated certificate is stored in a writable pod volume. Mount
+the ConfigMap as a directory; changes to it trigger a Deployment rollout.
 
 Enable `services.tuyaIpc` to deploy the bridge with persistent pairing state.
 Use `bin/tuya-ipc` to pair cameras and list RTSP endpoints. Configure paths in
