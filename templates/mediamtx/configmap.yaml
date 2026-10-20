@@ -17,6 +17,7 @@ data:
     hls: false
     webrtc: false
     srt: false
+    moq: false
     paths:
     {{- if .Values.services.mediamtx.paths }}
     {{- toYaml .Values.services.mediamtx.paths | nindent 6 }}

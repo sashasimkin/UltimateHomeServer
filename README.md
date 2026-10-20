@@ -228,8 +228,8 @@ does not transcode tracks. `-c:v copy -an` preserves source video and drops
 audio. To transcode audio instead, map an audio track and set `-c:a aac`.
 
 MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
-WebRTC, HLS, RTMP, and SRT endpoints are disabled. Mount the ConfigMap as a
-directory to enable hot reload.
+WebRTC, HLS, RTMP, SRT, and MoQ endpoints are disabled. Mount the ConfigMap as
+a directory to enable hot reload.
 
 Enable `services.tuyaIpc` to deploy the bridge with persistent pairing state.
 Use `bin/tuya-ipc` to pair cameras and list RTSP endpoints. Configure paths in
