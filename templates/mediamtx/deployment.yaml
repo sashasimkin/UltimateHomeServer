@@ -17,6 +17,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: mediamtx
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/mediamtx/configmap.yaml") . | sha256sum }}
     spec:
       automountServiceAccountToken: false
       securityContext:
