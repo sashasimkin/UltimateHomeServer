@@ -32,6 +32,9 @@ spec:
         - name: mediamtx
           image: "{{ $mediamtx.image.repository }}:{{ $mediamtx.image.tag }}{{ if (dig "ffmpeg" "enabled" false $mediamtx) }}-ffmpeg{{ end }}"
           imagePullPolicy: {{ $mediamtx.image.pullPolicy }}
+          {{- if $mediamtx.moq.enabled }}
+          workingDir: /tmp/moq-tls
+          {{- end }}
           args: ["/config/mediamtx.yml"]
           ports:
             - name: rtsp
