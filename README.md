@@ -187,10 +187,11 @@ cluster pulls.
 The `services.mediamtx` service is an opt-in RTSP server for camera streams.
 Set `services.mediamtx.enabled: true` and add one entry per stream under
 `services.mediamtx.paths`. MoQ is disabled by default. Set
-`services.mediamtx.moq.enabled: true` to turn on its HTTP/2 and HTTP/3 listeners
-on port 8892 and native QUIC listener on port 8893. Those ports are then added
-to the internal ClusterIP Service. For example, a path can proxy an RTSP source
-from a Tuya IPC bridge running in the same namespace:
+`services.mediamtx.moq.enabled: true` to turn on its HTTP/2 listener on port
+8892, HTTP/3 listener on port 8894, and native QUIC listener on port 8893.
+Those ports are then added to the internal ClusterIP Service. For example, a
+path can proxy an RTSP source from a Tuya IPC bridge running in the same
+namespace:
 
 ```yaml
 services:
