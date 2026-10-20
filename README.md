@@ -218,7 +218,7 @@ services:
         runOnInit: >-
           ffmpeg -hide_banner -loglevel warning -rtsp_transport tcp
           -i rtsp://tuya-ipc-terminal.home-media.svc.cluster.local:8554/Baby_Monitor
-          -map 0:v:0 -c:v copy -an -f rtsp
+          -map 0:v:0 -c:v copy -an -f rtsp -rtsp_transport tcp
           rtsp://127.0.0.1:$RTSP_PORT/$MTX_PATH
         runOnInitRestart: yes
 ```
