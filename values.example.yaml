@@ -294,6 +294,11 @@ services:
             enabled: false
         ports:
             rtsp: 8554
+            moqHttp2: 8892
+            moqHttp3: 8892
+            moqQuic: 8893
+        moq:
+            enabled: false
         paths: {}
         resources:
             requests:
