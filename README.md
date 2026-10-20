@@ -229,7 +229,7 @@ audio. To transcode audio instead, map an audio track and set `-c:a aac`.
 
 MediaMTX exposes RTSP on an internal ClusterIP Service; its API, metrics,
 WebRTC, HLS, RTMP, SRT, and MoQ endpoints are disabled. Mount the ConfigMap as
-a directory to enable hot reload.
+a directory; changes to it trigger a Deployment rollout.
 
 Enable `services.tuyaIpc` to deploy the bridge with persistent pairing state.
 Use `bin/tuya-ipc` to pair cameras and list RTSP endpoints. Configure paths in
