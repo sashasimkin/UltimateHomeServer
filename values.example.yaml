@@ -295,7 +295,7 @@ services:
         ports:
             rtsp: 8554
             moqHttp2: 8892
-            moqHttp3: 8892
+            moqHttp3: 8894
             moqQuic: 8893
         moq:
             enabled: false
