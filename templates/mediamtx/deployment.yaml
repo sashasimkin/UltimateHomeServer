@@ -1,5 +1,7 @@
 {{- if .Values.services.mediamtx.enabled }}
 {{- $mediamtx := .Values.services.mediamtx }}
+{{- $webrtc := dig "webrtc" (dict) $mediamtx }}
+{{- $webrtcEnabled := dig "enabled" false $webrtc }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,6 +42,14 @@ spec:
             - name: rtsp
               containerPort: {{ $mediamtx.ports.rtsp }}
               protocol: TCP
+            {{- if $webrtcEnabled }}
+            - name: webrtc-http
+              containerPort: {{ dig "httpPort" 8889 $webrtc }}
+              protocol: TCP
+            - name: webrtc-ice
+              containerPort: {{ dig "iceUdpPort" 8189 $webrtc }}
+              protocol: UDP
+            {{- end }}
             {{- if $mediamtx.moq.enabled }}
             - name: moq-http2
               containerPort: {{ $mediamtx.ports.moqHttp2 }}

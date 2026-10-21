@@ -233,8 +233,20 @@ The `-ffmpeg` image adds FFmpeg to the MediaMTX container; MediaMTX itself
 does not transcode tracks. `-c:v copy -an` preserves source video and drops
 audio. To transcode audio instead, map an audio track and set `-c:a aac`.
 
+MediaMTX WebRTC is independently opt-in with
+`services.mediamtx.webrtc.enabled: true`. The chart opens the WebRTC HTTP
+listener and ICE UDP listener on the ClusterIP Service. To publish the HTTP
+reader, also set `webrtc.ingress.enabled`, its TLS host and certificate, and a
+non-empty `sourceRanges` allowlist. The chart creates an HTTPS IngressRoute and
+an `IngressRouteUDP` for the configured ICE entry point; the cluster's Traefik
+HelmChartConfig must expose that UDP entry point, and
+`webrtc.additionalHosts` must contain an address clients can reach on the ICE
+port. Keep the HTTP reader restricted to trusted networks because MediaMTX's
+default read permissions are anonymous. Browser support for H.265 WebRTC varies
+by browser and device.
+
 MediaMTX exposes its enabled listeners on an internal ClusterIP Service. Its
-API, metrics, WebRTC, HLS, RTMP, and SRT endpoints are disabled. When MoQ is
+API, metrics, HLS, RTMP, and SRT endpoints are disabled by default. When MoQ is
 enabled, its generated certificate is stored in a writable pod volume. Mount
 the ConfigMap as a directory; changes to it trigger a Deployment rollout.
 

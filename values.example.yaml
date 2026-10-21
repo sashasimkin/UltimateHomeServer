@@ -299,6 +299,18 @@ services:
             moqQuic: 8893
         moq:
             enabled: false
+        webrtc:
+            enabled: false
+            httpPort: 8889
+            iceUdpPort: 8189
+            iceEntryPoint: mediamtx-ice
+            additionalHosts: []
+            allowedOrigins: []
+            ingress:
+                enabled: false
+                host: ""
+                tlsSecretName: ""
+                sourceRanges: []
         paths: {}
         resources:
             requests:
