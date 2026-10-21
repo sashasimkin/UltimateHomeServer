@@ -173,7 +173,7 @@ View the [`uhs-cli` repository](https://github.com/TechSquidTV/uhs-cli) for more
 ### Tuya IPC terminal image
 
 The reproducible multi-architecture image build for the
-[`tuya-ipc-terminal` fork](https://github.com/sanderio-ops/tuya-ipc-terminal/pull/4) lives
+[`tuya-ipc-terminal` fork](https://github.com/sashasimkin/tuya-ipc-terminal) lives
 in [`images/tuya-ipc-terminal`](images/tuya-ipc-terminal) and is published by
 `.github/workflows/tuya-ipc-image.yml`. The Docker build pins the upstream source
 commit `585cbcbea0bed19aab6ec46e9165c9090c11fc27`: the complete
