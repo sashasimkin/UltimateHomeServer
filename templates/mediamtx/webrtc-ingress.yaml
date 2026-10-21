@@ -1,0 +1,56 @@
+{{- $mediamtx := .Values.services.mediamtx }}
+{{- $webrtc := dig "webrtc" (dict) $mediamtx }}
+{{- $webrtcEnabled := dig "enabled" false $webrtc }}
+{{- $ingress := dig "ingress" (dict) $webrtc }}
+{{- if and $mediamtx.enabled $webrtcEnabled (dig "enabled" false $ingress) }}
+{{- $host := required "services.mediamtx.webrtc.ingress.host is required when WebRTC ingress is enabled" (dig "host" "" $ingress) }}
+{{- $tlsSecret := required "services.mediamtx.webrtc.ingress.tlsSecretName is required when WebRTC ingress is enabled" (dig "tlsSecretName" "" $ingress) }}
+{{- $sourceRanges := required "services.mediamtx.webrtc.ingress.sourceRanges is required when WebRTC ingress is enabled" (dig "sourceRanges" (list) $ingress) }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: mediamtx-webrtc-lan-only
+  namespace: {{ .Values.common.namespace }}
+spec:
+  ipAllowList:
+    sourceRange:
+      {{- toYaml $sourceRanges | nindent 6 }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mediamtx-webrtc
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: mediamtx
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ $host }}`)
+      middlewares:
+        - name: mediamtx-webrtc-lan-only
+        - name: default-headers
+      services:
+        - kind: Service
+          name: mediamtx
+          port: {{ dig "httpPort" 8889 $webrtc }}
+  tls:
+    secretName: {{ $tlsSecret }}
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: mediamtx-webrtc-ice
+  namespace: {{ .Values.common.namespace }}
+  labels:
+    app.kubernetes.io/name: mediamtx
+spec:
+  entryPoints:
+    - {{ dig "iceEntryPoint" "mediamtx-ice" $webrtc }}
+  routes:
+    - services:
+        - name: mediamtx
+          port: {{ dig "iceUdpPort" 8189 $webrtc }}
+{{- end }}

@@ -1,4 +1,7 @@
 {{- if .Values.services.mediamtx.enabled }}
+{{- $mediamtx := .Values.services.mediamtx }}
+{{- $webrtc := dig "webrtc" (dict) $mediamtx }}
+{{- $webrtcEnabled := dig "enabled" false $webrtc }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,6 +16,16 @@ spec:
       port: {{ .Values.services.mediamtx.ports.rtsp }}
       targetPort: rtsp
       protocol: TCP
+    {{- if $webrtcEnabled }}
+    - name: webrtc-http
+      port: {{ dig "httpPort" 8889 $webrtc }}
+      targetPort: webrtc-http
+      protocol: TCP
+    - name: webrtc-ice
+      port: {{ dig "iceUdpPort" 8189 $webrtc }}
+      targetPort: webrtc-ice
+      protocol: UDP
+    {{- end }}
     {{- if .Values.services.mediamtx.moq.enabled }}
     - name: moq-http2
       port: {{ .Values.services.mediamtx.ports.moqHttp2 }}

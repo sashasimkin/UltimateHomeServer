@@ -1,4 +1,7 @@
 {{- if .Values.services.mediamtx.enabled }}
+{{- $mediamtx := .Values.services.mediamtx }}
+{{- $webrtc := dig "webrtc" (dict) $mediamtx }}
+{{- $webrtcEnabled := dig "enabled" false $webrtc }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,7 +18,19 @@ data:
     rtspTransports: [tcp]
     rtmp: false
     hls: false
-    webrtc: false
+    webrtc: {{ $webrtcEnabled }}
+    {{- if $webrtcEnabled }}
+    webrtcAddress: :{{ dig "httpPort" 8889 $webrtc }}
+    webrtcLocalUDPAddress: :{{ dig "iceUdpPort" 8189 $webrtc }}
+    {{- with dig "additionalHosts" (list) $webrtc }}
+    webrtcAdditionalHosts:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with dig "allowedOrigins" (list) $webrtc }}
+    webrtcAllowOrigins:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- end }}
     srt: false
     moq: {{ .Values.services.mediamtx.moq.enabled }}
     {{- if .Values.services.mediamtx.moq.enabled }}
