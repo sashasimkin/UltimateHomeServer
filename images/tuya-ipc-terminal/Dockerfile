@@ -1,10 +1,11 @@
 FROM golang:1.23.9-alpine AS build
-ARG TUYA_COMMIT=d65b3e9babb4829176290b4d53195d62636f00bf
+ARG TUYA_COMMIT=585cbcbea0bed19aab6ec46e9165c9090c11fc27
 RUN apk add --no-cache ca-certificates git
 WORKDIR /src
-RUN git init && git remote add origin https://github.com/seydx/tuya-ipc-terminal.git \
+RUN git init && git remote add origin https://github.com/sanderio-ops/tuya-ipc-terminal.git \
     && git fetch --depth=1 origin "${TUYA_COMMIT}" \
     && git checkout --detach FETCH_HEAD
+RUN CGO_ENABLED=0 go test -trimpath ./...
 RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/tuya-ipc-terminal .
 
 FROM alpine:3.22
