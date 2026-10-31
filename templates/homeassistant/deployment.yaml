@@ -19,6 +19,17 @@ spec:
       labels:
         app.kubernetes.io/name: homeassistant
     spec:
+      {{- with .Values.services.homeassistant.dnsPolicy }}
+      dnsPolicy: {{ . | quote }}
+      {{- end }}
+      {{- with .Values.services.homeassistant.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.services.homeassistant.hostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: homeassistant
           image: "{{ .Values.services.homeassistant.image.repository }}:{{ .Values.services.homeassistant.image.tag }}"

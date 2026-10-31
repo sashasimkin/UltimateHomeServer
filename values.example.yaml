@@ -150,6 +150,11 @@ services:
             http: 8123
         config: homeassistant/config
         hostNetwork: false
+        # Optional pod DNS settings and static host mappings.
+        # With dnsPolicy: None, dnsConfig.nameservers must be provided.
+        dnsPolicy: ""
+        dnsConfig: {}
+        hostAliases: []
         usbPassthrough: true
         # USB on OrangePI 5
         privileged: true
