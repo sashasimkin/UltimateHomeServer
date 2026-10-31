@@ -31,6 +31,13 @@ The shared Longhorn PVC accepts optional metadata labels through
 `recurring-job.longhorn.io/<job-name>: enabled` label for an existing Longhorn
 RecurringJob. The labels do not change the claim's storage class or access mode.
 
+Home Assistant supports optional `services.homeassistant.dnsPolicy`,
+`dnsConfig`, and `hostAliases` pod settings. Defaults preserve Kubernetes DNS
+behavior. If using `dnsPolicy: None`, supply at least one DNS server in
+`dnsConfig.nameservers`. Static aliases can keep a critical service resolvable
+when the cluster DNS service is unavailable; keep their addresses synchronized
+with the corresponding service configuration.
+
 Here are some useful resources to get you started:
 - [TRasSH-Guides](https://trash-guides.info/)
 - [ultimatehomeserver](https://www.ultimatehomeserver.com/docs/)
