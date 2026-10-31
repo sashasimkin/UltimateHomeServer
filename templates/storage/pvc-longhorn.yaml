@@ -4,6 +4,10 @@ kind: PersistentVolumeClaim
 metadata:
   name: longhorn-volv-pvc
   namespace: {{ .Values.common.namespace }}
+  {{- with .Values.common.storage.longhorn.labels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   accessModes:
     - ReadWriteMany

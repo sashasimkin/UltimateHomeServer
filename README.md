@@ -25,6 +25,12 @@
 
 ## Getting Started
 
+The shared Longhorn PVC accepts optional metadata labels through
+`common.storage.longhorn.labels`. For recurring backup enrollment, set
+`recurring-job.longhorn.io/source: enabled` and a
+`recurring-job.longhorn.io/<job-name>: enabled` label for an existing Longhorn
+RecurringJob. The labels do not change the claim's storage class or access mode.
+
 Here are some useful resources to get you started:
 - [TRasSH-Guides](https://trash-guides.info/)
 - [ultimatehomeserver](https://www.ultimatehomeserver.com/docs/)
