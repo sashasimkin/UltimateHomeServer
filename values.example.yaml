@@ -8,6 +8,8 @@ common:
         longhorn:
             enabled: true
             storageSize: 10Gi
+            # Optional PVC labels, e.g. recurring-job selectors for Longhorn.
+            labels: {}
         # Opt-in dedicated PVCs. Add one entry per service as it is migrated.
         persistentVolumes:
             jellyfin:
